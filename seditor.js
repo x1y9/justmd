@@ -134,11 +134,14 @@ ipc.on('saveFile', function (event,path) {
   }); 
 });
 
-ipc.on('paste', function (event) {
-  var image = clipboard.readImage();
-  if (!image)
-    return;
+ipc.on('exportHtml', function (event,path) {
+  fs.writeFile(path, document.getElementById('out').innerHTML, function (error, data) {
+    if (error)
+        reject(error);
+  }); 
+});
 
+ipc.on('paste', function (event) {
   if (!curFile) {
     alert("please save your file first before paste image");
     return;
@@ -158,14 +161,17 @@ ipc.on('paste', function (event) {
       editor.replaceSelection ('\n![](images/' + datestamp + '.png)\n'); 
     }); 
   }
-  else if (clipboard.availableFormats().indexOf("image/jpeg") != -1){
+  else if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
     var imgfile = path.join(imgfolder,  datestamp +'.jpg');
     fs.writeFile(imgfile, image.toJPEG(), function (error, data) {
       if (error) reject(error);
       editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
     });     
   }
-
+  else if (clipboard.availableFormats().indexOf("text/plain") != -1) {
+    var url = clipboard.readText();
+    editor.replaceSelection ('\n![](' + url + ')\n'); 
+  }  
 });
 
 update(editor);

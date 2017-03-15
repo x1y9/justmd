@@ -79,7 +79,17 @@ const template = [
             }
           })  
         }
-      }
+      },
+      {
+        label: 'Export HTML...',
+        click: function(item, focusedWindow) {
+          electron.dialog.showSaveDialog(saveOptions, function (filename) {
+            if (filename) {
+              focusedWindow.webContents.send('exportHtml', filename);
+            }
+          })  
+        }
+      }      
     ]
   },
   {
