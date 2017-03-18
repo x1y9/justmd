@@ -1,10 +1,12 @@
 {
   "name": "justmd",
+  "productName": "justmd",
   "version": "1.0.0",
   "description": "just markdown editor",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --arch=x64"
   },
   "devDependencies": {
     "electron": "^1.4.1"
