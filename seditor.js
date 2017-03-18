@@ -30,18 +30,39 @@ var md = markdownit({
 })
   .use(markdownitFootnote);
 
+var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+  mode: 'gfm',
+  lineNumbers: false,
+  matchBrackets: true,
+  lineWrapping: true,
+  theme: 'base16-light',
+  extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
+});
+
+function refreshSectionIndex() {
+  inSections=[];
+  outSections=[];
+  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
+    var outLine = document.querySelector('#line' + i);
+    if (outLine) {
+      outSections.push(outLine.offsetTop);
+      inSections.push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
+    }
+  }
+}
 
 function update(e){
   clearTimeout(updateTimer);
-   updateTimer = setTimeout(function() {
-    setOutput(e.getValue());
+  updateTimer = setTimeout(function() {
+    renderOutput(e.getValue());
   }, 500);
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(function() {
+    refreshSectionIndex();
+  }, 500); 
 }
 
-function setOutput(val){
-  //val = val.replace(/<equation>((.*?\n)*?.*?)<\/equation>/ig, function(a, b){
-  //  return '<img src="http://latex.codecogs.com/png.latex?' + encodeURIComponent(b) + '" />';
-  //});
+function renderOutput(val){
   if (curFile) {
     val = val.replace(/!\[(.*?)\]\(([^:\)]*)\)/ig, function(match, label, name){
       return '![' + label + '](file://' + path.dirname(curFile) + "/" + name + ")";
@@ -52,14 +73,6 @@ function setOutput(val){
   out.innerHTML = md.render(val);
 }
 
-var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
-  mode: 'gfm',
-  lineNumbers: false,
-  matchBrackets: true,
-  lineWrapping: true,
-  theme: 'base16-light',
-  extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
-});
 
 editor.on('change', update);
 
@@ -67,15 +80,7 @@ editor.on('scroll', function(event) {
 
   clearTimeout(scrollTimer); //editor的行高是随着滚动动态刷的，所以这里只有定时刷了
   scrollTimer = setTimeout(function() {    
-    inSections=[];
-    outSections=[];
-    for (var i = 0; i < editor.getDoc().lineCount(); i++) {
-      var outLine = document.querySelector('#line' + i);
-      if (outLine) {
-        outSections.push(outLine.offsetTop);
-        inSections.push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
-      }
-    }
+    refreshSectionIndex();
   }, 500);
 
   if (inSections.length == 0 || outSections.length == 0)
