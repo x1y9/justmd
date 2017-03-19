@@ -123,6 +123,18 @@ const template = [
     ]
   },
   {
+    label: 'Insert',
+    submenu: [
+      {
+        label: 'Table',
+        accelerator: 'Alt+T',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertTable')        
+         }
+      }
+    ]
+  },  
+  {
     label: 'View',
     submenu: [
       {

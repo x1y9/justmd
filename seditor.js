@@ -185,5 +185,9 @@ ipc.on('paste', function (event) {
   }  
 });
 
+ipc.on('insertTable', function (event,path) {
+  editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
+});
+
 onUpdate(editor);
 editor.focus();
