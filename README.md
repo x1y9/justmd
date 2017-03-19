@@ -7,7 +7,8 @@ set ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/
 
 ## todo
 
-* 中文pdf
+* pdf隐藏左侧和滚动
+* toc
 * find/replace
 * save出错提示
 

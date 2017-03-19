@@ -8,7 +8,7 @@ const path = require('path');
 
 var updateTimer, scrollTimer;
 var curFile;
-var inSections=[], outSections=[], inLastTop, outLastTop;
+var scrollSections=[[],[]], scrollLastTop=[0,0], scrollDir = -1;
 
 // Because highlight.js is a bit awkward at times
 var languageOverrides = {
@@ -40,26 +40,31 @@ var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
 });
 
 function refreshSectionIndex() {
-  inSections=[];
-  outSections=[];
+  scrollSections[0]=[];
+  scrollSections[1]=[];
   for (var i = 0; i < editor.getDoc().lineCount(); i++) {
     var outLine = document.querySelector('#line' + i);
     if (outLine) {
-      outSections.push(outLine.offsetTop);
-      inSections.push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
+      scrollSections[1].push(outLine.offsetTop);
+      scrollSections[0].push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
     }
   }
 }
 
-function update(e){
+function onUpdate(e){
   clearTimeout(updateTimer);
   updateTimer = setTimeout(function() {
     renderOutput(e.getValue());
   }, 500);
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(function() {
+}
+
+function onRender(){
+  //editor的行高是随着滚动动态刷的，所以这里只有定时刷了
+  clearTimeout(scrollTimer); 
+  scrollTimer = setTimeout(function() {    
     refreshSectionIndex();
-  }, 500); 
+    scrollDir = -1;
+  }, 500);
 }
 
 function renderOutput(val){
@@ -71,50 +76,51 @@ function renderOutput(val){
 
   var out = document.getElementById('out');
   out.innerHTML = md.render(val);
+  onRender();
 }
 
-
-editor.on('change', update);
-
-editor.on('scroll', function(event) {
-
-  clearTimeout(scrollTimer); //editor的行高是随着滚动动态刷的，所以这里只有定时刷了
-  scrollTimer = setTimeout(function() {    
-    refreshSectionIndex();
-  }, 500);
-
-  if (inSections.length == 0 || outSections.length == 0)
+function onScroll(dir) {
+  onRender();
+  if (scrollSections[0].length == 0 || scrollSections[1].length == 0 || scrollDir === 1 - dir )
     return;
 
-  var inDiv = document.querySelector(".CodeMirror-scroll");
-  var outDiv = document.querySelector("#out");
-  var inTop = inDiv.scrollTop;
-  var inSection = 0;
-  if (Math.abs(inTop - inLastTop) < 9) 
+  scrollDir = dir; 
+  var scrollDivs = [document.querySelector(".CodeMirror-scroll"), document.querySelector("#out")];
+  var scrollTop = scrollDivs[scrollDir].scrollTop;
+  
+  if (Math.abs(scrollTop - scrollLastTop[scrollDir]) < 9) 
     return;
 
-  inLastTop = inTop;
-  for (var i = 1; i < inSections.length; i++) {
-    if (inTop < inSections[i])  {
-      inSection = i - 1;
+  var curSection = 0;
+  scrollLastTop[scrollDir] = scrollTop;
+  for (var i = 1; i < scrollSections[scrollDir].length; i++) {
+    if (scrollTop < scrollSections[scrollDir][i])  {
+      curSection = i - 1;
       break;
     }
   }
 
-  if (i >= inSections.length) {
-    var percent = (inTop - inSections[i-1]) / ((inDiv.scrollHeight -  inSections[i-1]) || 1);
-    var destPos = outSections[i-1] + (outDiv.scrollHeight - outSections[i-1]) * percent;
+  if (i >= scrollSections[scrollDir].length) {
+    var percent = (scrollTop - scrollSections[scrollDir][i-1]) / ((scrollDivs[scrollDir].scrollHeight -  scrollSections[scrollDir][i-1]) || 1);
+    var destPos = scrollSections[1-scrollDir][i-1] + (scrollDivs[1-scrollDir].scrollHeight - scrollSections[1-scrollDir][i-1]) * percent;
   }
   else {
-    var percent = (inTop - inSections[i-1]) / ((inSections[i] -  inSections[i-1]) || 1); 
-    var destPos = outSections[i-1] + (outSections[i] - outSections[i-1]) * percent;
+    var percent = (scrollTop - scrollSections[scrollDir][i-1]) / ((scrollSections[scrollDir][i] -  scrollSections[scrollDir][i-1]) || 1); 
+    var destPos = scrollSections[1-scrollDir][i-1] + (scrollSections[1-scrollDir][i] - scrollSections[1-scrollDir][i-1]) * percent;
   }
-  outDiv.scrollTop = destPos;
+  scrollDivs[1-scrollDir].scrollTop = destPos;
+}
 
+editor.on('change', onUpdate);
+
+editor.on('scroll', function(event) {
+  onScroll(0)
 });
 
 document.querySelector("#out").addEventListener('scroll', function(event) {
+  onScroll(1); 
 }, false); 
+
 
 ipc.on('newFile', function (event) {
   editor.setValue('# title');
@@ -179,5 +185,5 @@ ipc.on('paste', function (event) {
   }  
 });
 
-update(editor);
+onUpdate(editor);
 editor.focus();
