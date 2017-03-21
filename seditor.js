@@ -189,5 +189,10 @@ ipc.on('insertTable', function (event,path) {
   editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
 });
 
+ipc.on('switchParseHtml', function (event, enable) {
+  md.set({html:enable});
+  onUpdate(editor);  
+});
+
 onUpdate(editor);
 editor.focus();

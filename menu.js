@@ -62,7 +62,10 @@ const template = [
             }
           });          
          }
-      },      
+      },
+      {
+        type: 'separator'
+      },            
       {
         label: 'Export PDF...',
         click: function(item, focusedWindow) {
@@ -89,7 +92,7 @@ const template = [
             }
           })  
         }
-      }      
+      }
     ]
   },
   {
@@ -119,7 +122,23 @@ const template = [
         click: function(item, focusedWindow) {
           focusedWindow.webContents.send('paste')        
          }
-      }
+      },
+      {
+        type: 'separator'
+      },        
+      {
+        label: 'Options',
+        submenu: [
+          {
+            label: 'Parse Html',
+            type: 'checkbox',
+            checked: true,
+            click (item, focusedWindow) {
+              focusedWindow.webContents.send('switchParseHtml', item.checked);
+            }
+          }            
+        ]
+      },      
     ]
   },
   {
