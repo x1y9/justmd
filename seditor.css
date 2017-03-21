@@ -57,13 +57,6 @@ body {margin: 0;}
 
 .cm-quote { color: #90a959; font-style: italic; }
 
-.view #in {
-  display: none;
-}
-.view #out {
-  left: 0;
-  padding-left: 10px;
-}
 
 a{ color: #0645ad; text-decoration:none;}
 a:visited{ color: #0b0080; }
@@ -110,3 +103,12 @@ table { border-collapse: collapse; border-spacing: 0; }
 td, th { vertical-align: top; padding: 4px 10px; border: 1px solid #bbb; }
 tr:nth-child(even) td, tr:nth-child(even) th { background: #eee; }
 
+@media print  {
+ #in{
+  display: none;
+ }
+ #out {
+  position: relative;
+  left:0;
+ }
+}
