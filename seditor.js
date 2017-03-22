@@ -43,7 +43,7 @@ function refreshSectionIndex() {
   scrollSections[0]=[];
   scrollSections[1]=[];
   for (var i = 0; i < editor.getDoc().lineCount(); i++) {
-    var outLine = document.querySelector('#line' + i);
+    var outLine = document.querySelector('#out > #line' + i);
     if (outLine) {
       scrollSections[1].push(outLine.offsetTop);
       scrollSections[0].push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
@@ -167,14 +167,14 @@ ipc.on('paste', function (event) {
 
   if (clipboard.availableFormats().indexOf("image/png") != -1) {
     var imgfile = path.join(imgfolder,  datestamp +'.png');
-    fs.writeFile(imgfile, image.toPNG(), function (error, data) {
+    fs.writeFile(imgfile, clipboard.readImage().toPNG(), function (error, data) {
       if (error) reject(error);
       editor.replaceSelection ('\n![](images/' + datestamp + '.png)\n'); 
     }); 
   }
   else if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
     var imgfile = path.join(imgfolder,  datestamp +'.jpg');
-    fs.writeFile(imgfile, image.toJPEG(), function (error, data) {
+    fs.writeFile(imgfile, clipboard.readImage().toJPEG(), function (error, data) {
       if (error) reject(error);
       editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
     });     
