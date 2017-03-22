@@ -35,6 +35,7 @@ const template = [
       },    
       {
         label: 'Save',
+        accelerator: 'Ctrl+S',
         click: function(item, focusedWindow) {
           if (curFile) {
             focusedWindow.webContents.send('saveFile', curFile);
@@ -132,7 +133,6 @@ const template = [
           {
             label: 'Parse Html',
             type: 'checkbox',
-            checked: true,
             click (item, focusedWindow) {
               focusedWindow.webContents.send('switchParseHtml', item.checked);
             }
@@ -149,6 +149,13 @@ const template = [
         accelerator: 'Alt+T',
         click: function(item, focusedWindow) {
           focusedWindow.webContents.send('insertTable')        
+         }
+      },
+      {
+        label: 'Code Block',
+        accelerator: 'Alt+C',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertCodeBlock')        
          }
       }
     ]

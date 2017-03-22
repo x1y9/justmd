@@ -17,7 +17,6 @@ var languageOverrides = {
 };
 
 var md = markdownit({
-  html: true,
   highlight: function(code, lang){
     if(languageOverrides[lang]) lang = languageOverrides[lang];
     if(lang && hljs.getLanguage(lang)){
@@ -188,6 +187,11 @@ ipc.on('paste', function (event) {
 ipc.on('insertTable', function (event,path) {
   editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
 });
+
+ipc.on('insertCodeBlock', function (event,path) {
+  editor.replaceSelection ('\n```\nfoo=bar\n```\n'); 
+});
+
 
 ipc.on('switchParseHtml', function (event, enable) {
   md.set({html:enable});
