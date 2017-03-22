@@ -167,14 +167,14 @@ ipc.on('paste', function (event) {
 
   if (clipboard.availableFormats().indexOf("image/png") != -1) {
     var imgfile = path.join(imgfolder,  datestamp +'.png');
-    fs.writeFile(imgfile, image.toPNG(), function (error, data) {
+    fs.writeFile(imgfile, clipboard.readImage().toPNG(), function (error, data) {
       if (error) reject(error);
       editor.replaceSelection ('\n![](images/' + datestamp + '.png)\n'); 
     }); 
   }
   else if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
     var imgfile = path.join(imgfolder,  datestamp +'.jpg');
-    fs.writeFile(imgfile, image.toJPEG(), function (error, data) {
+    fs.writeFile(imgfile, clipboard.readImage().toJPEG(), function (error, data) {
       if (error) reject(error);
       editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
     });     
