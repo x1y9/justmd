@@ -43,7 +43,7 @@ function refreshSectionIndex() {
   scrollSections[0]=[];
   scrollSections[1]=[];
   for (var i = 0; i < editor.getDoc().lineCount(); i++) {
-    var outLine = document.querySelector('#line' + i);
+    var outLine = document.querySelector('#out > #line' + i);
     if (outLine) {
       scrollSections[1].push(outLine.offsetTop);
       scrollSections[0].push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
