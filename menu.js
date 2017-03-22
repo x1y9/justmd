@@ -15,7 +15,7 @@ const template = [
         label: 'New File',
         click: function(item, focusedWindow) {
           curFile = '';
-          focusedWindow.setTitle("SEditor");
+          focusedWindow.setTitle("justmd");
           focusedWindow.webContents.send('newFile')
          }
       },    
