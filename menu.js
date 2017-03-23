@@ -118,7 +118,7 @@ const template = [
         role: 'paste'
       },
       {
-        label: 'Paste Image',
+        label: 'Paste Media',
         accelerator: 'Alt+V',
         click: function(item, focusedWindow) {
           focusedWindow.webContents.send('paste')        

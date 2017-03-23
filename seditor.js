@@ -5,6 +5,7 @@ const ipc = require('electron').ipcRenderer;
 const clipboard = require('electron').clipboard;
 const fs = require('fs');
 const path = require('path');
+//const toMarkdown = require('to-markdown');
 
 var updateTimer, scrollTimer;
 var curFile;
@@ -178,9 +179,9 @@ ipc.on('paste', function (event) {
       editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
     });     
   }
-  else if (clipboard.availableFormats().indexOf("text/plain") != -1) {
-    var url = clipboard.readText();
-    editor.replaceSelection ('\n![](' + url + ')\n'); 
+  else if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    var html = clipboard.readHTML();
+    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
   }  
 });
 
