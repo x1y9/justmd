@@ -118,10 +118,22 @@ const template = [
         role: 'paste'
       },
       {
-        label: 'Paste Media',
-        accelerator: 'Alt+V',
+        label: 'Paste Image',
+        accelerator: 'Alt+I',
         click: function(item, focusedWindow) {
-          focusedWindow.webContents.send('paste')        
+          focusedWindow.webContents.send('pasteImage')        
+         }
+      },
+      {
+        label: 'Paste Html',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('pasteHtml')
+         }
+      },
+      {
+        label: 'Paste Word',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('pasteWord')
          }
       },
       {

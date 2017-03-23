@@ -152,7 +152,7 @@ ipc.on('exportHtml', function (event,path) {
   }); 
 });
 
-ipc.on('paste', function (event) {
+ipc.on('pasteImage', function (event) {
   if (!curFile) {
     alert("please save your file first before paste image");
     return;
@@ -181,6 +181,24 @@ ipc.on('paste', function (event) {
   }
   else if (clipboard.availableFormats().indexOf("text/html") != -1) {
     var html = clipboard.readHTML();
+    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
+  }  
+});
+
+ipc.on('pasteWord', function (event) {
+  if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    var html = clipboard.readHTML().replace(/<([a-z][a-zA-Z0-9]*)\s[\s\S]*?>/g, '<$1>');
+    html = html.replace(/<!\[if[\s\S]*?endif\]>/g, ''); //remove <![if
+    html = html.replace(/<\/?(span|a|o:p)\s*>/g, '');            //remove a,span,o:p tag
+    html = html.replace(/<tr>/,'<th>').replace(/<\/tr>/,'</th>');
+    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
+  }  
+});
+
+ipc.on('pasteHtml', function (event) {
+  if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    //leave href,src
+    var html = clipboard.readHTML().replace(/(class|style)="[\s\S]*?"/g, '');
     editor.replaceSelection (toMarkdown(html, { gfm: true })); 
   }  
 });
