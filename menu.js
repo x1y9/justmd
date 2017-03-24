@@ -118,8 +118,17 @@ const template = [
         role: 'paste'
       },
       {
+        type: 'separator'
+      },        
+      {
+        label: 'Smart Paste',
+        accelerator: 'Alt+V',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('smartPaste')        
+         }
+      },      
+      {
         label: 'Paste Image',
-        accelerator: 'Alt+I',
         click: function(item, focusedWindow) {
           focusedWindow.webContents.send('pasteImage')        
          }

@@ -111,6 +111,59 @@ function onScroll(dir) {
   scrollDivs[1-scrollDir].scrollTop = destPos;
 }
 
+function onPasteImage() {
+  if (!curFile) {
+    alert("please save your file first before paste image");
+    return;
+  }
+
+  var datestamp = new Date().toISOString().replace(/[^0-9]/g,'');
+  var imgfolder = path.join(path.dirname(curFile), "images");
+  try {
+    fs.mkdirSync(imgfolder);
+  } catch(e) {    
+  }
+
+  if (clipboard.availableFormats().indexOf("image/png") != -1) {
+    var imgfile = path.join(imgfolder,  datestamp +'.png');
+    fs.writeFile(imgfile, clipboard.readImage().toPNG(), function (error, data) {
+      if (error) reject(error);
+      editor.replaceSelection ('\n![](images/' + datestamp + '.png)\n'); 
+    }); 
+  }
+  else if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
+    var imgfile = path.join(imgfolder,  datestamp +'.jpg');
+    fs.writeFile(imgfile, clipboard.readImage().toJPEG(), function (error, data) {
+      if (error) reject(error);
+      editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
+    });     
+  }
+  else if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    var html = clipboard.readHTML();
+    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
+  }  
+}
+
+function onPasteWord() {
+  if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    var html = clipboard.readHTML().replace(/<([a-z][a-zA-Z0-9]*)\s[\s\S]*?>/g, '<$1>');
+    html = html.replace(/<!\[if[\s\S]*?endif\]>/g, ''); //remove <![if
+    html = html.replace(/<\/?(span|a|o:p)\s*>/g, '');            //remove a,span,o:p tag
+    //html = html.replace(/<tr>/,'<th>').replace(/<\/tr>/,'</th>');
+    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
+  }   
+}
+
+function onPasteHtml() {
+  if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    //leave href,src
+    var html = clipboard.readHTML().replace(/(class|style)="[\s\S]*?"/g, '');
+    var md = toMarkdown(html, { gfm: true });
+    md = md.replace(/<\/?(span|div|a|input|label)[\s\S]*?>/g, ''); 
+    editor.replaceSelection(md); 
+  }    
+}
+
 editor.on('change', onUpdate);
 
 editor.on('scroll', function(event) {
@@ -152,57 +205,25 @@ ipc.on('exportHtml', function (event,path) {
   }); 
 });
 
-ipc.on('pasteImage', function (event) {
-  if (!curFile) {
-    alert("please save your file first before paste image");
-    return;
-  }
+ipc.on('pasteImage', onPasteImage);
 
-  var datestamp = new Date().toISOString().replace(/[^0-9]/g,'');
-  var imgfolder = path.join(path.dirname(curFile), "images");
-  try {
-    fs.mkdirSync(imgfolder);
-  } catch(e) {    
-  }
+ipc.on('pasteWord', onPasteWord);
 
-  if (clipboard.availableFormats().indexOf("image/png") != -1) {
-    var imgfile = path.join(imgfolder,  datestamp +'.png');
-    fs.writeFile(imgfile, clipboard.readImage().toPNG(), function (error, data) {
-      if (error) reject(error);
-      editor.replaceSelection ('\n![](images/' + datestamp + '.png)\n'); 
-    }); 
-  }
-  else if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
-    var imgfile = path.join(imgfolder,  datestamp +'.jpg');
-    fs.writeFile(imgfile, clipboard.readImage().toJPEG(), function (error, data) {
-      if (error) reject(error);
-      editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
-    });     
-  }
+ipc.on('pasteHtml', onPasteHtml);
+
+ipc.on('smartPaste', function (event) {
+  if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
+    onPasteImage();
+  }  
+  else if (clipboard.availableFormats().indexOf("text/rtf") != -1) {
+    onPasteWord();
+  }  
   else if (clipboard.availableFormats().indexOf("text/html") != -1) {
-    var html = clipboard.readHTML();
-    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
+    onPasteHtml();
   }  
-});
-
-ipc.on('pasteWord', function (event) {
-  if (clipboard.availableFormats().indexOf("text/html") != -1) {
-    var html = clipboard.readHTML().replace(/<([a-z][a-zA-Z0-9]*)\s[\s\S]*?>/g, '<$1>');
-    html = html.replace(/<!\[if[\s\S]*?endif\]>/g, ''); //remove <![if
-    html = html.replace(/<\/?(span|a|o:p)\s*>/g, '');            //remove a,span,o:p tag
-    //html = html.replace(/<tr>/,'<th>').replace(/<\/tr>/,'</th>');
-    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
-  }  
-});
-
-ipc.on('pasteHtml', function (event) {
-  if (clipboard.availableFormats().indexOf("text/html") != -1) {
-    //leave href,src
-    var html = clipboard.readHTML().replace(/(class|style)="[\s\S]*?"/g, '');
-    var md = toMarkdown(html, { gfm: true });
-    md = md.replace(/<\/?(span|div|a|input|label)[\s\S]*?>/g, ''); 
-    editor.replaceSelection(md); 
-  }  
+  else if (clipboard.availableFormats().indexOf("text/plain") != -1) {
+    editor.replaceSelection(clipboard.readText());
+  } 
 });
 
 ipc.on('insertTable', function (event,path) {
