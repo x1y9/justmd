@@ -223,7 +223,7 @@ const template = [
     submenu: [
       {
         label: 'Learn More',
-        click () { electron.shell.openExternal('http://electron.atom.io') }
+        click () { electron.shell.openExternal('http://i38.am/justmd') }
       }
     ]
   }

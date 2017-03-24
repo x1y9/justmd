@@ -56,7 +56,7 @@ body {margin: 0;}
 .cm-header-6 { font-size: 1.15em; }
 
 .cm-quote { color: #90a959; font-style: italic; }
-
+.cm-error { background: inherit !important;  color: inherit !important; }
 
 a{ color: #0645ad; text-decoration:none;}
 a:visited{ color: #0b0080; }
