@@ -146,11 +146,12 @@ function onPasteImage() {
 
 function onPasteWord() {
   if (clipboard.availableFormats().indexOf("text/html") != -1) {
+    //for word, remove all property
     var html = clipboard.readHTML().replace(/<([a-z][a-zA-Z0-9]*)\s[\s\S]*?>/g, '<$1>');
     html = html.replace(/<!\[if[\s\S]*?endif\]>/g, ''); //remove <![if
-    html = html.replace(/<\/?(span|a|o:p)\s*>/g, '');            //remove a,span,o:p tag
-    //html = html.replace(/<tr>/,'<th>').replace(/<\/tr>/,'</th>');
-    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
+    var md = toMarkdown(html, { gfm: true });
+    md = md.replace(/<\/?(span|div|a|o:p|input|label)[\s\S]*?>/g, ''); 
+    editor.replaceSelection (md); 
   }   
 }
 

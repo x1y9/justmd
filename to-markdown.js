@@ -240,7 +240,7 @@ function cell (content, node) {
   var index = Array.prototype.indexOf.call(node.parentNode.childNodes, node)
   var prefix = ' '
   if (index === 0) prefix = '| '
-  return prefix + content + ' |'
+  return prefix + content.replace(/[\r\n]*/g,'') + ' |'  //iam38:remove newline
 }
 
 var highlightRegEx = /highlight highlight-(\S+)/
@@ -281,7 +281,10 @@ module.exports = [
       var borderCells = ''
       var alignMap = { left: ':--', right: '--:', center: ':-:' }
 
-      if (node.parentNode.nodeName === 'THEAD') {
+      //iam38: complex compare for thead
+      if ((node.parentNode.nodeName === 'THEAD' || node.parentNode.nodeName === 'TABLE' 
+          || (node.parentNode.nodeName === 'TBODY' && node.parentNode.parentNode.childNodes[0] == node.parentNode)) 
+        && (node.parentNode.childNodes[0] == node)) {
         for (var i = 0; i < node.childNodes.length; i++) {
           var align = node.childNodes[i].attributes.align
           var border = '---'
