@@ -149,7 +149,10 @@ function onPasteWord() {
     var html = clipboard.readHTML().replace(/(class|style)="[\s\S]*?"/g, '');
     var md = toMarkdown(html, { gfm: true });
     md = md.replace(/<\/?(span|div|a|o:p|input|label)[\s\S]*?>/g, ''); 
-    editor.replaceSelection (md); 
+    md = md.replace(/!\[.*?\]\(file:\/\/\/(.*?)\)/g, function(match, url){
+      return match.replace(/\\/g, '/');
+    });
+    editor.replaceSelection(md); 
   }   
 }
 
