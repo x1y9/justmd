@@ -3,6 +3,7 @@ navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob || navigator.moz
 window.saveAs = window.saveAs || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs;
 const ipc = require('electron').ipcRenderer;
 const clipboard = require('electron').clipboard;
+const shell  = require('electron').shell;
 const fs = require('fs');
 const path = require('path');
 //const toMarkdown = require('to-markdown');
@@ -176,6 +177,12 @@ document.querySelector("#out").addEventListener('scroll', function(event) {
   onScroll(1); 
 }, false); 
 
+document.addEventListener('click', function(event) {
+    if (event.srcElement.nodeName == 'A' && event.srcElement.href.indexOf("http") == 0) {
+      event.preventDefault();
+      shell.openExternal(event.srcElement.href);
+    }
+});
 
 ipc.on('newFile', function (event) {
   editor.setValue('# title');

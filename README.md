@@ -10,5 +10,4 @@ set ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/
 * toc
 * icon
 * find/replace
-* click link in out
 
