@@ -161,7 +161,7 @@ function onPasteWord() {
     md = md.replace(/(!\[.*?\])\(file:\/\/\/(.*?)\)/g, function(match, title, url){
       var target = path.join(imgfolder, datestamp + '-' + imageIdx + path.extname(url));
       fs.createReadStream(url).pipe(fs.createWriteStream(target));
-      return title + '(file:///images/' +  datestamp + '-' + imageIdx + path.extname(url) + ')';
+      return title + '(images/' +  datestamp + '-' + (imageIdx++) + path.extname(url) + ')';
     });
     editor.replaceSelection(md); 
   }   
