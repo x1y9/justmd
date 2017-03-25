@@ -150,8 +150,18 @@ function onPasteWord() {
     var html = clipboard.readHTML().replace(/(class|style)="[\s\S]*?"/g, '');
     var md = toMarkdown(html, { gfm: true });
     md = md.replace(/<\/?(span|div|a|o:p|input|label)[\s\S]*?>/g, ''); 
-    md = md.replace(/!\[.*?\]\(file:\/\/\/(.*?)\)/g, function(match, url){
-      return match.replace(/\\/g, '/');
+    if (md.indexOf('file:///') != -1 && !curFile) {
+      alert("please save your markdown file before paste image from word");
+      return;
+    }
+
+    var datestamp = new Date().toISOString().replace(/[^0-9]/g,'');
+    var imgfolder = path.join(path.dirname(curFile), "images");
+    var imageIdx = 1;
+    md = md.replace(/(!\[.*?\])\(file:\/\/\/(.*?)\)/g, function(match, title, url){
+      var target = path.join(imgfolder, datestamp + '-' + imageIdx + path.extname(url));
+      fs.createReadStream(url).pipe(fs.createWriteStream(target));
+      return title + '(file:///images/' +  datestamp + '-' + imageIdx + path.extname(url) + ')';
     });
     editor.replaceSelection(md); 
   }   
