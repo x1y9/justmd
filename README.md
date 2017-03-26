@@ -9,4 +9,5 @@ set ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/
 
 * toc
 * find/replace
+* minifier
 

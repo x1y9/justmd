@@ -245,6 +245,18 @@ ipc.on('smartPaste', function (event) {
   } 
 });
 
+ipc.on('find', function(event) {
+  editor.execCommand('find');
+});
+
+ipc.on('findNext', function(event) {
+  editor.execCommand('findNext');
+});
+
+ipc.on('replace', function(event) {
+  editor.execCommand('replace');
+});
+  
 ipc.on('insertTable', function (event,path) {
   editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
 });

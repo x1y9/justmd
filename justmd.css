@@ -29,7 +29,9 @@ body {margin: 0;}
 .CodeMirror-scroll {
   padding: 30px;
   box-sizing: border-box;
+  overflow-x: hidden !important; /* fix bottom one line exceed */
 }
+
 
 #out{
   position: fixed;
@@ -57,6 +59,7 @@ body {margin: 0;}
 
 .cm-quote { color: #90a959; font-style: italic; }
 .cm-error { background: inherit !important;  color: inherit !important; }
+.cm-searching { background: #80ff80; }
 
 a{ color: #0645ad; text-decoration:none;}
 a:visited{ color: #0b0080; }

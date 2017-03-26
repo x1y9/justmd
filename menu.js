@@ -149,10 +149,31 @@ const template = [
         type: 'separator'
       },        
       {
+        label: 'Find',
+        accelerator: 'Ctrl+F',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('find')        
+        }
+      },
+      {
+        label: 'Find Next',
+        accelerator: 'Ctrl+G',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('findNext')        
+        }
+      },                        
+      {
+        label: 'Replace',
+        accelerator: 'Ctrl+Shift+F',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('replace')        
+        }
+      },              
+      {
         label: 'Options',
         submenu: [
           {
-            label: 'Parse Html',
+            label: 'Html in Markdown',
             type: 'checkbox',
             click (item, focusedWindow) {
               focusedWindow.webContents.send('switchParseHtml', item.checked);
