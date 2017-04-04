@@ -214,6 +214,10 @@ const template = [
     role: 'help',
     submenu: [
       {
+        label: 'About',
+        click () { electron.dialog.showMessageBox({message: 'justmd v1.0.2, Copyright 2017 i38.me'});  }
+      },    
+      {
         label: 'Learn More',
         click () { electron.shell.openExternal('http://i38.me/justmd/') }
       }
