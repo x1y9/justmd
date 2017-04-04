@@ -5,11 +5,13 @@ const ipc = require('electron').ipcRenderer;
 const clipboard = require('electron').clipboard;
 const shell  = require('electron').shell;
 const fs = require('fs');
+const remote = require('electron').remote;
 const path = require('path');
+
 //const toMarkdown = require('to-markdown');
 
 var updateTimer, scrollTimer;
-var curFile;
+var curChanged, curFile;
 var scrollSections=[[],[]], scrollLastTop=[0,0], scrollDir = -1;
 
 // Because highlight.js is a bit awkward at times
@@ -51,13 +53,60 @@ function refreshSectionIndex() {
     }
   }
 }
+ 
+function refreshWindowTitle() {
+  var title;
+  if (curFile)
+    title = curFile;
+  else
+    title = "untitled";
 
-function onUpdate(e){
+  if (curChanged)
+    title = title + " *";
+
+  ipc.send('setChanged', curChanged);
+  remote.getCurrentWindow().setTitle(title);
+}
+
+function validateChange() {
+  if (curChanged) {
+    var choice = remote.dialog.showMessageBox(remote.getCurrentWindow(),
+        {
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          title: 'Confirm',
+          noLink: true,
+          message: 'File changed, Are you sure you want to discard the change?'
+       });
+
+    if (choice == 1) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+function onUpdate(isInit){
+  curChanged = !isInit;
+  refreshWindowTitle();
   clearTimeout(updateTimer);
   updateTimer = setTimeout(function() {
-    renderOutput(e.getValue());
+    renderOutput(editor.getValue());
   }, 500);
 }
+
+function onSaveFile(path) {
+  fs.writeFile(path, editor.getValue(), function (error, data) {
+    if (error)
+        reject(error);
+
+    curFile = path.replace(/\\/g,"/");  
+    curChanged = false;
+    refreshWindowTitle();
+  }); 
+}
+
 
 function onRender(){
   //editor的行高是随着滚动动态刷的，所以这里只有定时刷了
@@ -177,10 +226,12 @@ function onPasteHtml() {
   }    
 }
 
-editor.on('change', onUpdate);
+editor.on('change', function(event){
+  onUpdate(false);
+});
 
 editor.on('scroll', function(event) {
-  onScroll(0)
+  onScroll(0);
 });
 
 document.querySelector("#out").addEventListener('scroll', function(event) {
@@ -195,33 +246,64 @@ document.addEventListener('click', function(event) {
 });
 
 ipc.on('newFile', function (event) {
-  editor.setValue('# title');
-  curFile = '';
+  if (validateChange()) {
+    editor.setValue('# title');
+    curFile = '';
+    curChanged = false;
+    refreshWindowTitle();
+  }
 });
 
-ipc.on('openFile', function (event,path) {
-  fs.readFile(path, 'utf8', function (error, data) {
-    if (error)
-        reject(error);
-    curFile = path.replace(/\\/g,"/");  
-    editor.setValue(data);
-  }); 
+ipc.on('openFile', function (event) {
+  if (validateChange()) {
+    remote.dialog.showOpenDialog({
+        properties: ['openFile']
+    }, function(filenames) {              
+        if (filenames) {
+          fs.readFile(filenames[0], 'utf8', function (error, data) {
+            if (error)
+                reject(error);
+
+            curFile = filenames[0].replace(/\\/g,"/");  
+            editor.setValue(data);
+            curChanged = false;
+            refreshWindowTitle();
+          }); 
+        }
+    })
+  }
 });
 
-ipc.on('saveFile', function (event,path) {
-  fs.writeFile(path, editor.getValue(), function (error, data) {
-    if (error)
-        reject(error);
-
-    curFile = path.replace(/\\/g,"/");  
-  }); 
+ipc.on('saveFile', function (event) {
+  if (curFile) {
+    onSaveFile(curFile);
+  }
+  else {
+    remote.dialog.showSaveDialog({title: 'Save file'}, function (filename) {
+      if (filename) {
+        onSaveFile(filename);
+      }
+    });          
+  }
 });
 
-ipc.on('exportHtml', function (event,path) {
-  fs.writeFile(path, document.getElementById('out').innerHTML, function (error, data) {
-    if (error)
-        reject(error);
-  }); 
+ipc.on('saveAsFile', function (event) {
+  remote.dialog.showSaveDialog({title: 'Save as file'}, function (filename) {
+    if (filename) {
+      onSaveFile(filename);
+    }
+  });          
+});
+
+ipc.on('exportHtml', function (event) {
+  remote.dialog.showSaveDialog({title: 'Export HTML'}, function (filename) {
+    if (filename) {
+      fs.writeFile(filename, document.getElementById('out').innerHTML, function (error, data) {
+      if (error)
+            reject(error);
+      }); 
+    }
+  })
 });
 
 ipc.on('pasteImage', onPasteImage);
@@ -268,8 +350,8 @@ ipc.on('insertCodeBlock', function (event,path) {
 
 ipc.on('switchParseHtml', function (event, enable) {
   md.set({html:enable});
-  onUpdate(editor);  
+  onUpdate(false);  
 });
 
-onUpdate(editor);
+onUpdate(true);
 editor.focus();

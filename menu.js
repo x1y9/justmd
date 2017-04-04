@@ -2,10 +2,6 @@ const {Menu} = require('electron')
 const electron = require('electron')
 const app = electron.app
 const fs = require('fs')
-const saveOptions = {
-  title: 'Save file'
-};
-var curFile;
 
 const template = [
   {
@@ -14,55 +10,27 @@ const template = [
       {
         label: 'New File',
         click: function(item, focusedWindow) {
-          curFile = '';
-          focusedWindow.setTitle("justmd");
           focusedWindow.webContents.send('newFile')
          }
       },    
       {
         label: 'Open File...',
         click: function(item, focusedWindow) {
-          electron.dialog.showOpenDialog({
-                properties: ['openFile']
-            }, function(filenames) {              
-                if (filenames) {
-                  curFile = filenames[0];
-                  focusedWindow.setTitle(curFile);
-                  focusedWindow.webContents.send('openFile', filenames[0])
-                }
-            })
-         }
+          focusedWindow.webContents.send('openFile')
+        }
       },    
       {
         label: 'Save',
         accelerator: 'Ctrl+S',
         click: function(item, focusedWindow) {
-          if (curFile) {
-            focusedWindow.webContents.send('saveFile', curFile);
-          }
-          else {
-            electron.dialog.showSaveDialog(saveOptions, function (filename) {
-              if (filename) {
-                curFile = filename;
-                focusedWindow.setTitle(curFile);
-                focusedWindow.webContents.send('saveFile', filename);
-              }
-            });          
-          }
-          
-         }
+          focusedWindow.webContents.send('saveFile')
+        }
       },
       {
         label: 'Save As...',
         click: function(item, focusedWindow) {
-          electron.dialog.showSaveDialog(saveOptions, function (filename) {
-            if (filename) {
-              curFile = filename;
-              focusedWindow.setTitle(curFile);
-              focusedWindow.webContents.send('saveFile', filename);
-            }
-          });          
-         }
+          focusedWindow.webContents.send('saveAsFile')
+        }  
       },
       {
         type: 'separator'
@@ -87,11 +55,7 @@ const template = [
       {
         label: 'Export HTML...',
         click: function(item, focusedWindow) {
-          electron.dialog.showSaveDialog(saveOptions, function (filename) {
-            if (filename) {
-              focusedWindow.webContents.send('exportHtml', filename);
-            }
-          })  
+          focusedWindow.webContents.send('exportHtml')
         }
       }
     ]
@@ -237,7 +201,7 @@ const template = [
     submenu: [
       {
         label: 'Learn More',
-        click () { electron.shell.openExternal('http://i38.am/justmd') }
+        click () { electron.shell.openExternal('http://i38.me/justmd/') }
       }
     ]
   }
