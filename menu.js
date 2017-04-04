@@ -154,6 +154,20 @@ const template = [
     label: 'Insert',
     submenu: [
       {
+        label: 'Link',
+        accelerator: 'Alt+L',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertLink')        
+         }
+      },  
+      {
+        label: 'Image',
+        accelerator: 'Alt+I',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertImage')        
+         }
+      },          
+      {
         label: 'Table',
         accelerator: 'Alt+T',
         click: function(item, focusedWindow) {
@@ -166,7 +180,7 @@ const template = [
         click: function(item, focusedWindow) {
           focusedWindow.webContents.send('insertCodeBlock')        
          }
-      }
+      }      
     ]
   },  
   {

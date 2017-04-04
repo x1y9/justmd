@@ -26,7 +26,7 @@ function createWindow () {
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
 
-  //onbeforeunload very strange , use window close event in main process instead 
+  //onbeforeunload is strange , use window close event in main process instead 
   mainWindow.on('close', function(e){
     if (changed) {
       var choice = electron.dialog.showMessageBox(this,

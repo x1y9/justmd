@@ -338,12 +338,20 @@ ipc.on('findNext', function(event) {
 ipc.on('replace', function(event) {
   editor.execCommand('replace');
 });
-  
-ipc.on('insertTable', function (event,path) {
+
+ipc.on('insertLink', function (event) {
+  editor.replaceSelection ('[title](http://)'); 
+});
+
+ipc.on('insertImage', function (event) {
+  editor.replaceSelection ('![](images/foo.png)'); 
+});
+
+ipc.on('insertTable', function (event) {
   editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
 });
 
-ipc.on('insertCodeBlock', function (event,path) {
+ipc.on('insertCodeBlock', function (event) {
   editor.replaceSelection ('\n```\nfoo=bar\n```\n'); 
 });
 
