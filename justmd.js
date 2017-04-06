@@ -8,8 +8,6 @@ const fs = require('fs');
 const remote = require('electron').remote;
 const path = require('path');
 
-//const toMarkdown = require('to-markdown');
-
 var updateTimer, scrollTimer;
 var curChanged, curFile;
 var scrollSections=[[],[]], scrollLastTop=[0,0], scrollDir = -1;
@@ -30,16 +28,15 @@ var md = markdownit({
     }
     return '';
   }
-})
-  .use(markdownitFootnote);
+}).use(markdownitFootnote);
 
 var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
   mode: 'gfm',
   lineNumbers: false,
   matchBrackets: true,
   lineWrapping: true,
-  theme: 'base16-light',
-  extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
+  theme: 'base16-light'
+  //extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
 });
 
 function refreshSectionIndex() {
@@ -187,11 +184,7 @@ function onPasteImage() {
       if (error) reject(error);
       editor.replaceSelection ('\n![](images/' + datestamp + '.jpg)\n'); 
     });     
-  }
-  else if (clipboard.availableFormats().indexOf("text/html") != -1) {
-    var html = clipboard.readHTML();
-    editor.replaceSelection (toMarkdown(html, { gfm: true })); 
-  }  
+  }    
 }
 
 function onPasteWord() {
@@ -313,16 +306,17 @@ ipc.on('pasteWord', onPasteWord);
 ipc.on('pasteHtml', onPasteHtml);
 
 ipc.on('smartPaste', function (event) {
-  if (clipboard.availableFormats().indexOf("image/jpeg") != -1) {
+  var formats = clipboard.availableFormats(); 
+  if (formats.indexOf("image/jpeg") != -1 || formats.indexOf("image/png") != -1) {
     onPasteImage();
   }  
-  else if (clipboard.availableFormats().indexOf("text/rtf") != -1) {
+  else if (formats.indexOf("text/rtf") != -1) {
     onPasteWord();
   }  
-  else if (clipboard.availableFormats().indexOf("text/html") != -1) {
+  else if (formats.indexOf("text/html") != -1) {
     onPasteHtml();
   }  
-  else if (clipboard.availableFormats().indexOf("text/plain") != -1) {
+  else if (formats.indexOf("text/plain") != -1) {
     editor.replaceSelection(clipboard.readText());
   } 
 });
