@@ -38,7 +38,10 @@ const template = [
       {
         label: 'Export PDF...',
         click: function(item, focusedWindow) {
-          electron.dialog.showSaveDialog({title: 'Export PDF'}, function (filename) {
+          electron.dialog.showSaveDialog({
+            title: 'Export PDF',
+            filters:[{name:"Pdf File", extensions:["pdf"]}]
+          }, function (filename) {
             if (filename) {
               focusedWindow.webContents.printToPDF({}, function (error, data) {
                 if (error) throw error

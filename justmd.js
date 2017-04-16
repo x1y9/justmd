@@ -250,7 +250,8 @@ ipc.on('newFile', function (event) {
 ipc.on('openFile', function (event) {
   if (validateChange()) {
     remote.dialog.showOpenDialog({
-        properties: ['openFile']
+        properties: ['openFile'],
+        filters:[{name:"markdown File", extensions:["md","markdown"]}]
     }, function(filenames) {              
         if (filenames) {
           fs.readFile(filenames[0], 'utf8', function (error, data) {
@@ -272,7 +273,10 @@ ipc.on('saveFile', function (event) {
     onSaveFile(curFile);
   }
   else {
-    remote.dialog.showSaveDialog({title: 'Save file'}, function (filename) {
+    remote.dialog.showSaveDialog({
+      title: 'Save file',
+      filters:[{name:"Markdown File", extensions:["md","markdown"]}]
+    }, function (filename) {
       if (filename) {
         onSaveFile(filename);
       }
@@ -281,7 +285,10 @@ ipc.on('saveFile', function (event) {
 });
 
 ipc.on('saveAsFile', function (event) {
-  remote.dialog.showSaveDialog({title: 'Save as file'}, function (filename) {
+  remote.dialog.showSaveDialog({
+    title: 'Save as file',
+    filters:[{name:"Markdown File", extensions:["md","markdown"]}]
+  }, function (filename) {
     if (filename) {
       onSaveFile(filename);
     }
@@ -289,7 +296,10 @@ ipc.on('saveAsFile', function (event) {
 });
 
 ipc.on('exportHtml', function (event) {
-  remote.dialog.showSaveDialog({title: 'Export HTML'}, function (filename) {
+  remote.dialog.showSaveDialog({
+    title: 'Export HTML',
+    filters:[{name:"Html File", extensions:["html"]}]
+  }, function (filename) {
     if (filename) {
       fs.writeFile(filename, document.getElementById('out').innerHTML, function (error, data) {
       if (error)
