@@ -34,8 +34,8 @@ var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
   mode: 'gfm',
   lineNumbers: false,
   matchBrackets: true,
-  lineWrapping: true,
-  theme: 'base16-light'
+  lineWrapping: true
+  //theme: 'base16-light'
   //extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
 });
 
