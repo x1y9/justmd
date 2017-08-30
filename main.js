@@ -53,7 +53,7 @@ function createWindow () {
     mainWindow = null
   })
 
-  require('./menu')
+  require('./js/menu')
 }
 
 // This method will be called when Electron has finished
