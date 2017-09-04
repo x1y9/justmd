@@ -16,5 +16,5 @@ menubar
 toc
 sequence https://bramp.github.io/js-sequence-diagrams/
 flow http://flowchart.js.org/
-math 
-
+math  LATEX
+ 

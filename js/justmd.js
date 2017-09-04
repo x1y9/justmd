@@ -19,6 +19,9 @@ var languageOverrides = {
 };
 
 var md = markdownit({
+  breaks:true,            //回车会换行
+  html:true,              //识别正文中的html
+  linkify:true,           //识别正文中url
   highlight: function(code, lang){
     if(languageOverrides[lang]) lang = languageOverrides[lang];
     if(lang && hljs.getLanguage(lang)){
@@ -219,6 +222,67 @@ function onPasteHtml() {
   }    
 }
 
+function onBold() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('**' + editor.getSelection() + '**'); 
+  else
+    editor.replaceSelection ('**' + 'content' + '**'); 
+}
+
+function onQuote() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('> ' + select.replace(/(\r\n|\r|\n)/g, '$1> ')); 
+  else
+    editor.replaceSelection ('\n> content\n');
+
+}
+
+function onUnorderList() {
+   var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('* ' + select.replace(/(\r\n|\r|\n)/g, '$1* '));   
+  else
+    editor.replaceSelection ('\n* content\n'); 
+}
+
+function onOrderList() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('1. ' + select.replace(/(\r\n|\r|\n)/g, '$11. '));   
+  else
+    editor.replaceSelection ('\n1. content\n'); 
+}
+
+function onInsertImage() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('![' + select + '](images/foo.png)'); 
+  else
+    editor.replaceSelection ('![](images/foo.png)'); 
+}
+
+function onInsertTable() {
+  editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
+}
+
+function onInsertLink() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('[' + select + '](http://)'); 
+  else
+    editor.replaceSelection ('[title](http://)'); 
+}
+
+function onInsertCode() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('\n```java\n' + select + '\n```\n'); 
+  else
+    editor.replaceSelection ('\n```java\nfoo=bar\n```\n'); 
+}
+
 editor.on('change', function(event){
   onUpdate(false);
 });
@@ -237,6 +301,38 @@ document.addEventListener('click', function(event) {
       shell.openExternal(event.srcElement.href);
     }
 });
+
+document.querySelector("#bt-bold").addEventListener('click', function(event) {
+  onBold(); 
+}, false); 
+
+document.querySelector("#bt-quote").addEventListener('click', function(event) {
+  onQuote(); 
+}, false); 
+
+document.querySelector("#bt-ul").addEventListener('click', function(event) {
+  onUnorderList(); 
+}, false); 
+
+document.querySelector("#bt-ol").addEventListener('click', function(event) {
+  onOrderList(); 
+}, false); 
+
+document.querySelector("#bt-image").addEventListener('click', function(event) {
+  onInsertImage(); 
+}, false); 
+
+document.querySelector("#bt-link").addEventListener('click', function(event) {
+  onInsertLink(); 
+}, false); 
+
+document.querySelector("#bt-table").addEventListener('click', function(event) {
+  onInsertTable(); 
+}, false); 
+
+document.querySelector("#bt-code").addEventListener('click', function(event) {
+  onInsertCode(); 
+}, false); 
 
 ipc.on('newFile', function (event) {
   if (validateChange()) {
@@ -348,7 +444,7 @@ ipc.on('insertLink', function (event) {
 });
 
 ipc.on('insertImage', function (event) {
-  editor.replaceSelection ('![](images/foo.png)'); 
+  onInsertImage();
 });
 
 ipc.on('insertTable', function (event) {

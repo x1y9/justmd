@@ -19,7 +19,7 @@
   <script src="codemirror/lib/addon/search/searchcursor.js"></script>
   <script src="codemirror/lib/addon/search/search.js"></script>
 
-  <link rel="stylesheet" href="css/base16-light.css">  <!-- code mirror -->
+  <!-- <link rel="stylesheet" href="css/base16-light.css">   code mirror -->
   <link rel="stylesheet" href="codemirror/lib/codemirror.css">
   <link rel="stylesheet" href="codemirror/lib/addon/dialog/dialog.css">
 
@@ -30,14 +30,16 @@
 </head>
 <body>
   <div id="toolbar">
-    <a><i class="fa fa-bold"></i></a>
-    <a><i class="fa fa-quote-left"></i></a>
-    <a><i class="fa fa-list-ul"></i></a>
-    <a><i class="fa fa-list-ol"></i></a>
-    
-    <a><i class="fa fa-image"></i></a>
-    <a><i class="fa fa-globe"></i></a>
-    <a><i class="fa fa-code"></i></a>
+    <span class="split"></span>
+    <a><i class="fa fa-bold" id="bt-bold" title="bold"></i></a>
+    <a><i class="fa fa-quote-left" id="bt-quote" title="quote"></i></a>
+    <a><i class="fa fa-list-ul" id="bt-ul" title="list"></i></a>
+    <a><i class="fa fa-list-ol" id="bt-ol" title="ordered list"></i></a>
+    <span class="split"></span>    
+    <a><i class="fa fa-globe" id="bt-link" title="link"></i></a>
+    <a><i class="fa fa-image" id="bt-image" title="image"></i></a>
+    <a><i class="fa fa-table" id="bt-table" title="table"></i></a>
+    <a><i class="fa fa-code" id="bt-code" title="code"></i></a>
   </div>
   <div id="in"><form><textarea id="code"># title</textarea></form></div>
   <div id="out"></div>
