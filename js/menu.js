@@ -135,22 +135,7 @@ const template = [
         click: function(item, focusedWindow) {
           focusedWindow.webContents.send('replace')        
         }
-      },              
-      {
-        type: 'separator'
-      },        
-      {
-        label: 'Options',
-        submenu: [
-          {
-            label: 'Html in Markdown',
-            type: 'checkbox',
-            click (item, focusedWindow) {
-              focusedWindow.webContents.send('switchParseHtml', item.checked);
-            }
-          }            
-        ]
-      },      
+      }      
     ]
   },
   {
@@ -213,6 +198,27 @@ const template = [
       }
     ]
   },
+  {
+    label: 'Option',
+    submenu:  [
+      {
+        label: 'Html in Markdown',
+        type: 'checkbox',
+        checked: true,
+        click (item, focusedWindow) {
+          focusedWindow.webContents.send('switchParseHtml', item.checked);
+        }
+      },            
+      {
+        label: 'Link in Markdown',
+        type: 'checkbox',
+        checked: true,
+        click (item, focusedWindow) {
+          focusedWindow.webContents.send('switchLinkify', item.checked);
+        }
+      }            
+    ]
+  },  
   {
     role: 'help',
     submenu: [

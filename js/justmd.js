@@ -161,6 +161,22 @@ function onScroll(dir) {
   scrollDivs[1-scrollDir].scrollTop = destPos;
 }
 
+function onSmartPaste() {
+  var formats = clipboard.availableFormats(); 
+  if (formats.indexOf("image/jpeg") != -1 || formats.indexOf("image/png") != -1) {
+    onPasteImage();
+  }  
+  else if (formats.indexOf("text/rtf") != -1) {
+    onPasteWord();
+  }  
+  else if (formats.indexOf("text/html") != -1) {
+    onPasteHtml();
+  }  
+  else if (formats.indexOf("text/plain") != -1) {
+    editor.replaceSelection(clipboard.readText());
+  } 
+}
+
 function onPasteImage() {
   if (!curFile) {
     alert("please save your file first before paste image");
@@ -302,6 +318,11 @@ document.addEventListener('click', function(event) {
     }
 });
 
+
+document.querySelector("#bt-smart-paste").addEventListener('click', function(event) {
+  onSmartPaste();  //普通paste不知道怎么用js触发
+}, false); 
+
 document.querySelector("#bt-bold").addEventListener('click', function(event) {
   onBold(); 
 }, false); 
@@ -411,21 +432,7 @@ ipc.on('pasteWord', onPasteWord);
 
 ipc.on('pasteHtml', onPasteHtml);
 
-ipc.on('smartPaste', function (event) {
-  var formats = clipboard.availableFormats(); 
-  if (formats.indexOf("image/jpeg") != -1 || formats.indexOf("image/png") != -1) {
-    onPasteImage();
-  }  
-  else if (formats.indexOf("text/rtf") != -1) {
-    onPasteWord();
-  }  
-  else if (formats.indexOf("text/html") != -1) {
-    onPasteHtml();
-  }  
-  else if (formats.indexOf("text/plain") != -1) {
-    editor.replaceSelection(clipboard.readText());
-  } 
-});
+ipc.on('smartPaste', onSmartPaste);
 
 ipc.on('find', function(event) {
   editor.execCommand('find');
@@ -439,25 +446,22 @@ ipc.on('replace', function(event) {
   editor.execCommand('replace');
 });
 
-ipc.on('insertLink', function (event) {
-  editor.replaceSelection ('[title](http://)'); 
-});
+ipc.on('insertLink', onInsertLink);
 
-ipc.on('insertImage', function (event) {
-  onInsertImage();
-});
+ipc.on('insertImage', onInsertImage);
 
-ipc.on('insertTable', function (event) {
-  editor.replaceSelection ('\n| Table  | Are  | Cool|\n| ------ |------| ----|\n| cell   |      |     |\n'); 
-});
+ipc.on('insertTable', onInsertTable);
 
-ipc.on('insertCodeBlock', function (event) {
-  editor.replaceSelection ('\n```\nfoo=bar\n```\n'); 
-});
+ipc.on('insertCodeBlock', onInsertCode);
 
 
 ipc.on('switchParseHtml', function (event, enable) {
   md.set({html:enable});
+  onUpdate(false);  
+});
+
+ipc.on('switchLinkify', function (event, enable) {
+  md.set({linkify:enable});
   onUpdate(false);  
 });
 
