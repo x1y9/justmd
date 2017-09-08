@@ -96,7 +96,65 @@ function onUpdate(isInit){
   }, 500);
 }
 
-function onSaveFile(path) {
+function onNewFile() {
+  if (validateChange()) {
+    editor.setValue('# title');
+    curFile = '';
+    curChanged = false;
+    refreshWindowTitle();
+  }
+}
+
+function onOpenFile() {
+  if (validateChange()) {
+    remote.dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters:[{name:"markdown File", extensions:["md","markdown"]}]
+    }, function(filenames) {              
+        if (filenames) {
+          fs.readFile(filenames[0], 'utf8', function (error, data) {
+            if (error)
+                reject(error);
+
+            curFile = filenames[0].replace(/\\/g,"/");  
+            editor.setValue(data);
+            curChanged = false;
+            refreshWindowTitle();
+          }); 
+        }
+    })
+  }
+}
+
+
+function onSaveFile() {
+  if (curFile) {
+    saveFile(curFile);
+  }
+  else {
+    remote.dialog.showSaveDialog({
+      title: 'Save file',
+      filters:[{name:"Markdown File", extensions:["md","markdown"]}]
+    }, function (filename) {
+      if (filename) {
+        saveFile(filename);
+      }
+    });          
+  }
+}
+
+function onSaveAsFile() {
+  remote.dialog.showSaveDialog({
+    title: 'Save as file',
+    filters:[{name:"Markdown File", extensions:["md","markdown"]}]
+  }, function (filename) {
+    if (filename) {
+      saveFile(filename);
+    }
+  });          
+}
+
+function saveFile(path) {
   fs.writeFile(path, editor.getValue(), function (error, data) {
     if (error)
         reject(error);
@@ -107,6 +165,19 @@ function onSaveFile(path) {
   }); 
 }
 
+function onExportHtml() {
+  remote.dialog.showSaveDialog({
+    title: 'Export HTML',
+    filters:[{name:"Html File", extensions:["html"]}]
+  }, function (filename) {
+    if (filename) {
+      fs.writeFile(filename, document.getElementById('out').innerHTML, function (error, data) {
+      if (error)
+            reject(error);
+      }); 
+    }
+  })
+}
 
 function onRender(){
   //editor的行高是随着滚动动态刷的，所以这里只有定时刷了
@@ -318,6 +389,13 @@ document.addEventListener('click', function(event) {
     }
 });
 
+document.querySelector("#bt-open").addEventListener('click', function(event) {
+  onOpenFile();  
+}, false); 
+
+document.querySelector("#bt-save").addEventListener('click', function(event) {
+  onSaveFile();  
+}, false); 
 
 document.querySelector("#bt-smart-paste").addEventListener('click', function(event) {
   onSmartPaste();  //普通paste不知道怎么用js触发
@@ -355,76 +433,15 @@ document.querySelector("#bt-code").addEventListener('click', function(event) {
   onInsertCode(); 
 }, false); 
 
-ipc.on('newFile', function (event) {
-  if (validateChange()) {
-    editor.setValue('# title');
-    curFile = '';
-    curChanged = false;
-    refreshWindowTitle();
-  }
-});
+ipc.on('newFile', onNewFile);
 
-ipc.on('openFile', function (event) {
-  if (validateChange()) {
-    remote.dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters:[{name:"markdown File", extensions:["md","markdown"]}]
-    }, function(filenames) {              
-        if (filenames) {
-          fs.readFile(filenames[0], 'utf8', function (error, data) {
-            if (error)
-                reject(error);
+ipc.on('openFile', onOpenFile);
 
-            curFile = filenames[0].replace(/\\/g,"/");  
-            editor.setValue(data);
-            curChanged = false;
-            refreshWindowTitle();
-          }); 
-        }
-    })
-  }
-});
+ipc.on('saveFile', onSaveFile);
 
-ipc.on('saveFile', function (event) {
-  if (curFile) {
-    onSaveFile(curFile);
-  }
-  else {
-    remote.dialog.showSaveDialog({
-      title: 'Save file',
-      filters:[{name:"Markdown File", extensions:["md","markdown"]}]
-    }, function (filename) {
-      if (filename) {
-        onSaveFile(filename);
-      }
-    });          
-  }
-});
+ipc.on('saveAsFile', onSaveAsFile);
 
-ipc.on('saveAsFile', function (event) {
-  remote.dialog.showSaveDialog({
-    title: 'Save as file',
-    filters:[{name:"Markdown File", extensions:["md","markdown"]}]
-  }, function (filename) {
-    if (filename) {
-      onSaveFile(filename);
-    }
-  });          
-});
-
-ipc.on('exportHtml', function (event) {
-  remote.dialog.showSaveDialog({
-    title: 'Export HTML',
-    filters:[{name:"Html File", extensions:["html"]}]
-  }, function (filename) {
-    if (filename) {
-      fs.writeFile(filename, document.getElementById('out').innerHTML, function (error, data) {
-      if (error)
-            reject(error);
-      }); 
-    }
-  })
-});
+ipc.on('exportHtml', onExportHtml);
 
 ipc.on('pasteImage', onPasteImage);
 
