@@ -42,6 +42,11 @@ var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
   //extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
 });
 
+
+/*
+  内部函数
+*/
+
 function refreshSectionIndex() {
   scrollSections[0]=[];
   scrollSections[1]=[];
@@ -86,6 +91,9 @@ function validateChange() {
   return true;
 }
 
+/*
+  事件处理
+*/
 
 function onUpdate(isInit){
   curChanged = !isInit;
