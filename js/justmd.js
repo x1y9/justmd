@@ -34,7 +34,8 @@ var md = markdownit({
   }
 }).use(markdownitFootnote)
 .use(markdownitCheckbox)
-.use(texmath.use(katex));
+.use(texmath.use(katex))
+.use(markdownitTOC);
 //.use(require('markdown-it-katex'));
 
 var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
