@@ -8,7 +8,7 @@ npm start
 # build
 before build:
 set ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/
-npm package-x64  
+npm run package-x64  
 
 
 ## todo

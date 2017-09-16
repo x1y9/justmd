@@ -23,9 +23,11 @@ var md = markdownit({
   html:true,              //识别正文中的html
   linkify:true,           //识别正文中url
   highlight: function(code, lang){
-    return "aa";
     if(languageOverrides[lang]) lang = languageOverrides[lang];
-    if(lang && hljs.getLanguage(lang)){
+    if (lang === 'uml') {
+      return nomnoml.renderSvg(code);
+    }
+    else if(lang && hljs.getLanguage(lang)){
       try {
         return hljs.highlight(lang, code).value;
       }catch(e){}
