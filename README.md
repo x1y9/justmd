@@ -12,8 +12,7 @@ npm run package-x64
 
 
 ## todo
-toc
+split adjust
 sequence https://bramp.github.io/js-sequence-diagrams/
 flow http://flowchart.js.org/
-math  LATEX
  

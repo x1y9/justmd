@@ -166,9 +166,27 @@ const template = [
         label: 'Code Block',
         accelerator: 'Alt+C',
         click: function(item, focusedWindow) {
-          focusedWindow.webContents.send('insertCodeBlock')        
+          focusedWindow.webContents.send('insertCode')        
          }
-      }      
+      },
+      {
+        label: 'Tex',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertLatex')        
+         }
+      },        
+      {
+        label: 'UML',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertUML')        
+         }
+      },
+      {
+        label: 'Table of content',
+        click: function(item, focusedWindow) {
+          focusedWindow.webContents.send('insertTOC')        
+         }
+      }              
     ]
   },  
   {

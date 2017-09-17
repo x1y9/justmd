@@ -25,7 +25,11 @@ var md = markdownit({
   highlight: function(code, lang){
     if(languageOverrides[lang]) lang = languageOverrides[lang];
     if (lang === 'uml') {
-      return nomnoml.renderSvg(code);
+      try {
+        return nomnoml.renderSvg(code);
+      }catch(e){
+        return e;
+      } 
     }
     else if(lang && hljs.getLanguage(lang)){
       try {
@@ -385,6 +389,26 @@ function onInsertCode() {
     editor.replaceSelection ('\n```java\nfoo=bar\n```\n'); 
 }
 
+function onInsertTex() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('\n$$' + select + '$$\n'); 
+  else
+    editor.replaceSelection ('\n$$c = \\sqrt{a^2 + b^2}$$\n'); 
+}
+
+function onInsertUML() {
+  var select = editor.getSelection();
+  if (select)
+    editor.replaceSelection ('\n```uml\n' + select + '\n```\n'); 
+  else
+    editor.replaceSelection ('\n```uml\n[<start>st]->[<state>plunder]\n[plunder]->[<choice>more loot]\n[more loot]->[st]\n[more loot] no ->[<end>e]\n```\n'); 
+}
+
+function onInsertTOC() {
+  editor.replaceSelection ('\n[toc]\n'); 
+}
+
 editor.on('change', function(event){
   onUpdate(false);
 });
@@ -448,22 +472,24 @@ document.querySelector("#bt-code").addEventListener('click', function(event) {
   onInsertCode(); 
 }, false); 
 
+document.querySelector("#bt-tex").addEventListener('click', function(event) {
+  onInsertTex(); 
+}, false); 
+
+document.querySelector("#bt-uml").addEventListener('click', function(event) {
+  onInsertUML(); 
+}, false); 
+
+
 ipc.on('newFile', onNewFile);
-
 ipc.on('openFile', onOpenFile);
-
 ipc.on('saveFile', onSaveFile);
-
 ipc.on('saveAsFile', onSaveAsFile);
-
 ipc.on('exportHtml', onExportHtml);
 
 ipc.on('pasteImage', onPasteImage);
-
 ipc.on('pasteWord', onPasteWord);
-
 ipc.on('pasteHtml', onPasteHtml);
-
 ipc.on('smartPaste', onSmartPaste);
 
 ipc.on('find', function(event) {
@@ -479,13 +505,12 @@ ipc.on('replace', function(event) {
 });
 
 ipc.on('insertLink', onInsertLink);
-
 ipc.on('insertImage', onInsertImage);
-
 ipc.on('insertTable', onInsertTable);
-
 ipc.on('insertCodeBlock', onInsertCode);
-
+ipc.on('insertTex', onInsertTex);
+ipc.on('insertUML', onInsertUML);
+ipc.on('insertTOC', onInsertTOC);
 
 ipc.on('switchParseHtml', function (event, enable) {
   md.set({html:enable});
