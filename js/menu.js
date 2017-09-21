@@ -172,7 +172,7 @@ const template = [
       {
         label: 'Tex',
         click: function(item, focusedWindow) {
-          focusedWindow.webContents.send('insertLatex')        
+          focusedWindow.webContents.send('insertTex')        
          }
       },        
       {

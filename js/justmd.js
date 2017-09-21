@@ -10,7 +10,7 @@ const path = require('path');
 
 var updateTimer, scrollTimer;
 var curChanged, curFile;
-var scrollSections=[[],[]], scrollLastTop=[0,0], scrollDir = -1;
+var scrollLastTop=[0,0], scrollDir = -1;
 
 // Because highlight.js is a bit awkward at times
 var languageOverrides = {
@@ -58,18 +58,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
   内部函数
 */
 
-function refreshSectionIndex() {
-  scrollSections[0]=[];
-  scrollSections[1]=[];
-  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
-    var outLine = document.querySelector('#out > #line' + i);
-    if (outLine) {
-      scrollSections[1].push(outLine.offsetTop);
-      scrollSections[0].push(editor.charCoords({line:i,ch:0},'local').top + 30); //30是编辑器里的padding
-    }
-  }
-}
- 
+
 function refreshWindowTitle() {
   var title;
   if (curFile)
@@ -203,10 +192,20 @@ function onRender(){
   clearTimeout(scrollTimer); 
   scrollTimer = setTimeout(function() {    
     refreshSectionIndex();
-    scrollDir = -1;
+    console.log("refresh section")
   }, 500);
 }
 
+function refreshSectionIndex() {
+  outSections = {};
+  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
+    var outLine = document.querySelector('#out > #line' + i);
+    if (outLine) {
+      outSections[i] = outLine.offsetTop;
+    }
+  }
+}
+ 
 function renderOutput(val){
   if (curFile) {
     val = val.replace(/!\[(.*?)\]\(([^:\)]*)\)/ig, function(match, label, name){
@@ -219,36 +218,88 @@ function renderOutput(val){
   onRender();
 }
 
-function onScroll(dir) {
-  onRender();
-  if (scrollSections[0].length == 0 || scrollSections[1].length == 0 || scrollDir === 1 - dir )
+function onScrollNew(dir) {
+  //onRender();
+  if (outSections.length == 0  || scrollDir === dir ) {
+    scrollDir = -1;
     return;
-
-  scrollDir = dir; 
-  var scrollDivs = [document.querySelector(".CodeMirror-scroll"), document.querySelector("#out")];
-  var scrollTop = scrollDivs[scrollDir].scrollTop;
-  
-  if (Math.abs(scrollTop - scrollLastTop[scrollDir]) < 9) 
-    return;
-
-  var curSection = 0;
-  scrollLastTop[scrollDir] = scrollTop;
-  for (var i = 1; i < scrollSections[scrollDir].length; i++) {
-    if (scrollTop < scrollSections[scrollDir][i])  {
-      curSection = i - 1;
-      break;
-    }
   }
 
-  if (i >= scrollSections[scrollDir].length) {
-    var percent = (scrollTop - scrollSections[scrollDir][i-1]) / ((scrollDivs[scrollDir].scrollHeight -  scrollSections[scrollDir][i-1]) || 1);
-    var destPos = scrollSections[1-scrollDir][i-1] + (scrollDivs[1-scrollDir].scrollHeight - scrollSections[1-scrollDir][i-1]) * percent;
+  
+  var scrollDivs = [document.querySelector(".CodeMirror-scroll"), document.querySelector("#out")];
+  var y = scrollDivs[dir].scrollTop;  
+  if (Math.abs(y - scrollLastTop[y]) < 9) 
+    return;
+
+  scrollLastTop[dir] = y;
+  scrollDir = 1 - dir;
+  if (dir == 0) {
+    //editor触发, 要减去30的padding
+    y = y - 30;
+    var line = editor.coordsChar({left:0,top:y},'local').line;
+    var lines = Object.keys(outSections);
+    for (var i = 0; i < lines.length - 1; i++) {
+      if (line >= lines[i] && line < lines[i+1])
+        break;
+    }
+
+    if (line < lines[0]) {
+      var leftTop = 0;
+      var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
+      var rightTop = 0;
+      var rightBottom = outSections[lines[0]];
+    }
+    else if(i >= lines.length - 1) {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = scrollDivs[0].scrollHeight;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = scrollDivs[1].scrollHeight;
+    }
+    else {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = outSections[lines[i + 1]];
+    }
+    var percent = (y - leftTop) / ((leftBottom - leftTop) || 1);
+    var rightY = rightTop + (rightBottom - rightTop) * percent;
+    //console.log("dir:" + dir + ",to:" + rightY);
+    scrollDivs[1-dir].scrollTop = rightY;    
   }
   else {
-    var percent = (scrollTop - scrollSections[scrollDir][i-1]) / ((scrollSections[scrollDir][i] -  scrollSections[scrollDir][i-1]) || 1); 
-    var destPos = scrollSections[1-scrollDir][i-1] + (scrollSections[1-scrollDir][i] - scrollSections[1-scrollDir][i-1]) * percent;
+    //out触发    
+    var lines = Object.keys(outSections);
+    for (var i = 0; i < lines.length - 1; i++) {
+      if (y >= outSections[lines[i]] && y < outSections[lines[i+1]])
+        break;
+    }
+
+    //判断是否最前或最后
+    if (y < outSections[lines[0]]) {
+      var leftTop = 0;
+      var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
+      var rightTop = 0;
+      var rightBottom = outSections[lines[0]];
+    }
+    else if(i >= lines.length - 1) {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = scrollDivs[0].scrollHeight;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = scrollDivs[1].scrollHeight;;
+    }
+    else {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = outSections[lines[i + 1]];
+    }
+
+    var percent = (y - rightTop) / ((rightBottom - rightTop) || 1);
+    var leftY = leftTop + (leftBottom - leftTop) * percent;
+
+    //console.log("dir:" + dir + ",to:" + leftY);
+    scrollDivs[1-dir].scrollTop = leftY + 30;
   }
-  scrollDivs[1-scrollDir].scrollTop = destPos;
 }
 
 function onSmartPaste() {
@@ -414,11 +465,11 @@ editor.on('change', function(event){
 });
 
 editor.on('scroll', function(event) {
-  onScroll(0);
+  onScrollNew(0);
 });
 
 document.querySelector("#out").addEventListener('scroll', function(event) {
-  onScroll(1); 
+  onScrollNew(1); 
 }, false); 
 
 document.addEventListener('click', function(event) {
