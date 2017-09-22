@@ -27,6 +27,19 @@ body {margin: 0;}
   display: inline-block;
   width: 8px;
 }
+
+::-webkit-scrollbar  
+{  
+    width: 4px;  
+    height: 4px;  
+    background-color: #FFF;  
+}  
+ 
+::-webkit-scrollbar-thumb  
+{  
+    border-radius: 3px;  
+    background-color: #ccc;  
+}  
 .CodeMirror pre{
   line-height: 16px;
 }
