@@ -188,7 +188,6 @@ function onExportHtml() {
 }
 
 function onRender(){
-  //editor的行高是随着滚动动态刷的，所以这里只有定时刷了
   clearTimeout(scrollTimer); 
   scrollTimer = setTimeout(function() {    
     refreshSectionIndex();
@@ -196,7 +195,10 @@ function onRender(){
   }, 500);
 }
 
+window.addEventListener("resize", onRender, false);
+
 function refreshSectionIndex() {
+  //editor的行高是随着滚动动态刷的，所以这里只刷右侧，这样不用
   outSections = {};
   for (var i = 0; i < editor.getDoc().lineCount(); i++) {
     var outLine = document.querySelector('#out > #line' + i);
