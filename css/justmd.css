@@ -138,7 +138,7 @@ code { padding: 0 3px 0 3px; }
 sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
 sup { top: -0.5em; }
 sub { bottom: -0.25em; }
-ul, ol { margin: 1em 0; padding: 0 0 0 2em; }
+ul, ol { padding: 0 0 0 1em; }
 li p:last-child { margin:0 }
 .table-of-contents li {list-style-type: none;}
 
