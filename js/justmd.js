@@ -11,6 +11,8 @@ const path = require('path');
 var updateTimer, scrollTimer;
 var curChanged, curFile;
 var scrollLastTop=[0,0], scrollDir = -1;
+var parseDelay = 500;
+var syncDelay = 500;
 
 // Because highlight.js is a bit awkward at times
 var languageOverrides = {
@@ -58,7 +60,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
   内部函数
 */
 
-
 function refreshWindowTitle() {
   var title;
   if (curFile)
@@ -101,7 +102,120 @@ function onUpdate(isInit){
   clearTimeout(updateTimer);
   updateTimer = setTimeout(function() {
     renderOutput(editor.getValue());
-  }, 500);
+  }, parseDelay);
+}
+
+function renderOutput(val){
+  if (curFile) {
+    val = val.replace(/!\[(.*?)\]\(([^:\)]*)\)/ig, function(match, label, name){
+      return '![' + label + '](file://' + path.dirname(curFile) + "/" + name + ")";
+    });
+  }
+
+  var out = document.getElementById('out');
+  out.innerHTML = md.render(val);
+  onRenderChange();
+}
+
+function onRenderChange(){
+  clearTimeout(scrollTimer); 
+  scrollTimer = setTimeout(function() {    
+    refreshSectionIndex();
+    //console.log("refresh section");
+  }, syncDelay);
+}
+
+function refreshSectionIndex() {
+  //editor的行高是随着滚动动态刷的，所以这里只能刷右侧，左侧临时来计算
+  outSections = {};
+  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
+    var outLine = document.querySelector('#out > #line' + i);
+    if (outLine) {
+      outSections[i] = outLine.offsetTop;
+    }
+  }
+}
+ 
+function onScrollNew(dir) {
+  if (outSections.length == 0  || scrollDir === dir ) {
+    scrollDir = -1;
+    return;
+  }
+  
+  var scrollDivs = [document.querySelector(".CodeMirror-scroll"), document.querySelector("#out")];
+  var y = scrollDivs[dir].scrollTop;  
+  if (Math.abs(y - scrollLastTop[y]) < 9) 
+    return;
+
+  scrollLastTop[dir] = y;
+  scrollDir = 1 - dir;
+  if (dir == 0) {
+    //editor触发, 要减去30的padding
+    y = y - 30;
+    var line = editor.coordsChar({left:0,top:y},'local').line;
+    var lines = Object.keys(outSections);
+    for (var i = 0; i < lines.length - 1; i++) {
+      if (line >= lines[i] && line < lines[i+1])
+        break;
+    }
+
+    if (line < lines[0]) {
+      var leftTop = 0;
+      var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
+      var rightTop = 0;
+      var rightBottom = outSections[lines[0]];
+    }
+    else if(i >= lines.length - 1) {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = scrollDivs[0].scrollHeight;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = scrollDivs[1].scrollHeight;
+    }
+    else {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = outSections[lines[i + 1]];
+    }
+    var percent = (y - leftTop) / ((leftBottom - leftTop) || 1);
+    var rightY = rightTop + (rightBottom - rightTop) * percent;
+    //console.log("dir:" + dir + ",to:" + rightY);
+    scrollDivs[1-dir].scrollTop = rightY;    
+  }
+  else {
+    //out触发    
+    var lines = Object.keys(outSections);
+    for (var i = 0; i < lines.length - 1; i++) {
+      if (y >= outSections[lines[i]] && y < outSections[lines[i+1]])
+        break;
+    }
+
+    //判断是否最前或最后
+    if (y < outSections[lines[0]]) {
+      var leftTop = 0;
+      var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
+      var rightTop = 0;
+      var rightBottom = outSections[lines[0]];
+    }
+    else if(i >= lines.length - 1) {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = scrollDivs[0].scrollHeight;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = scrollDivs[1].scrollHeight;;
+    }
+    else {
+      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
+      var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
+      var rightTop = outSections[lines[i]];
+      var rightBottom = outSections[lines[i + 1]];
+    }
+
+    var percent = (y - rightTop) / ((rightBottom - rightTop) || 1);
+    var leftY = leftTop + (leftBottom - leftTop) * percent;
+
+    //console.log("dir:" + dir + ",to:" + leftY);
+    scrollDivs[1-dir].scrollTop = leftY + 30;
+  }
 }
 
 function onNewFile() {
@@ -187,122 +301,7 @@ function onExportHtml() {
   })
 }
 
-function onRender(){
-  clearTimeout(scrollTimer); 
-  scrollTimer = setTimeout(function() {    
-    refreshSectionIndex();
-    console.log("refresh section")
-  }, 500);
-}
 
-window.addEventListener("resize", onRender, false);
-
-function refreshSectionIndex() {
-  //editor的行高是随着滚动动态刷的，所以这里只刷右侧，这样不用
-  outSections = {};
-  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
-    var outLine = document.querySelector('#out > #line' + i);
-    if (outLine) {
-      outSections[i] = outLine.offsetTop;
-    }
-  }
-}
- 
-function renderOutput(val){
-  if (curFile) {
-    val = val.replace(/!\[(.*?)\]\(([^:\)]*)\)/ig, function(match, label, name){
-      return '![' + label + '](file://' + path.dirname(curFile) + "/" + name + ")";
-    });
-  }
-
-  var out = document.getElementById('out');
-  out.innerHTML = md.render(val);
-  onRender();
-}
-
-function onScrollNew(dir) {
-  //onRender();
-  if (outSections.length == 0  || scrollDir === dir ) {
-    scrollDir = -1;
-    return;
-  }
-
-  
-  var scrollDivs = [document.querySelector(".CodeMirror-scroll"), document.querySelector("#out")];
-  var y = scrollDivs[dir].scrollTop;  
-  if (Math.abs(y - scrollLastTop[y]) < 9) 
-    return;
-
-  scrollLastTop[dir] = y;
-  scrollDir = 1 - dir;
-  if (dir == 0) {
-    //editor触发, 要减去30的padding
-    y = y - 30;
-    var line = editor.coordsChar({left:0,top:y},'local').line;
-    var lines = Object.keys(outSections);
-    for (var i = 0; i < lines.length - 1; i++) {
-      if (line >= lines[i] && line < lines[i+1])
-        break;
-    }
-
-    if (line < lines[0]) {
-      var leftTop = 0;
-      var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
-      var rightTop = 0;
-      var rightBottom = outSections[lines[0]];
-    }
-    else if(i >= lines.length - 1) {
-      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
-      var leftBottom = scrollDivs[0].scrollHeight;
-      var rightTop = outSections[lines[i]];
-      var rightBottom = scrollDivs[1].scrollHeight;
-    }
-    else {
-      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
-      var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
-      var rightTop = outSections[lines[i]];
-      var rightBottom = outSections[lines[i + 1]];
-    }
-    var percent = (y - leftTop) / ((leftBottom - leftTop) || 1);
-    var rightY = rightTop + (rightBottom - rightTop) * percent;
-    //console.log("dir:" + dir + ",to:" + rightY);
-    scrollDivs[1-dir].scrollTop = rightY;    
-  }
-  else {
-    //out触发    
-    var lines = Object.keys(outSections);
-    for (var i = 0; i < lines.length - 1; i++) {
-      if (y >= outSections[lines[i]] && y < outSections[lines[i+1]])
-        break;
-    }
-
-    //判断是否最前或最后
-    if (y < outSections[lines[0]]) {
-      var leftTop = 0;
-      var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
-      var rightTop = 0;
-      var rightBottom = outSections[lines[0]];
-    }
-    else if(i >= lines.length - 1) {
-      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
-      var leftBottom = scrollDivs[0].scrollHeight;
-      var rightTop = outSections[lines[i]];
-      var rightBottom = scrollDivs[1].scrollHeight;;
-    }
-    else {
-      var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
-      var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
-      var rightTop = outSections[lines[i]];
-      var rightBottom = outSections[lines[i + 1]];
-    }
-
-    var percent = (y - rightTop) / ((rightBottom - rightTop) || 1);
-    var leftY = leftTop + (leftBottom - leftTop) * percent;
-
-    //console.log("dir:" + dir + ",to:" + leftY);
-    scrollDivs[1-dir].scrollTop = leftY + 30;
-  }
-}
 
 function onSmartPaste() {
   var formats = clipboard.availableFormats(); 
@@ -576,4 +575,5 @@ ipc.on('switchLinkify', function (event, enable) {
 });
 
 onUpdate(true);
+window.addEventListener("resize", onRenderChange, false);
 editor.focus();
