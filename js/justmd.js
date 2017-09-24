@@ -12,7 +12,7 @@ var updateTimer, scrollTimer;
 var curChanged, curFile;
 var scrollLastTop=[0,0], scrollDir = -1;
 var parseDelay = 500;
-var syncDelay = 500;
+var outSections = {};
 
 // Because highlight.js is a bit awkward at times
 var languageOverrides = {
@@ -114,29 +114,35 @@ function renderOutput(val){
 
   var out = document.getElementById('out');
   out.innerHTML = md.render(val);
-  onRenderChange();
+  refreshSectionIndex();
 }
 
-function onRenderChange(){
-  clearTimeout(scrollTimer); 
-  scrollTimer = setTimeout(function() {    
-    refreshSectionIndex();
-    //console.log("refresh section");
-  }, syncDelay);
-}
-
-function refreshSectionIndex() {
-  //editor的行高是随着滚动动态刷的，所以这里只能刷右侧，左侧临时来计算
-  outSections = {};
-  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
-    var outLine = document.querySelector('#out > #line' + i);
-    if (outLine) {
-      outSections[i] = outLine.offsetTop;
+function onSizeChange(){
+  //浏览器大小变化时，DOM没有变，只需要清除位置信息即可，无需重刷新DOM
+  for (var key in outSections) {
+    if (outSections.hasOwnProperty(key)) {
+      outSections[key] = -1;
     }
   }
 }
- 
-function onScrollNew(dir) {
+
+function refreshSectionIndex() {
+  //行高是随着加载动态刷的，所以这里只能刷DOM，不缓存行位置，位置在需要时临时刷新
+  outSections = {};
+  var maxLine = 0;
+  for (var i = 0; i < editor.getDoc().lineCount(); i++) {
+    //getElementById 比 querySelector快几倍
+    var outLine = document.getElementById('line' + i);
+    if (outLine) {
+      maxLine = i;
+      outSections[i] = -1;
+    }
+  }
+  //console.log("refresh section, max line:" + maxLine);
+}
+
+function onScroll(dir) {
+  //检查是否是一侧滚动触发的另一侧滚动事件
   if (outSections.length == 0  || scrollDir === dir ) {
     scrollDir = -1;
     return;
@@ -149,6 +155,7 @@ function onScrollNew(dir) {
 
   scrollLastTop[dir] = y;
   scrollDir = 1 - dir;
+
   if (dir == 0) {
     //editor触发, 要减去30的padding
     y = y - 30;
@@ -163,29 +170,39 @@ function onScrollNew(dir) {
       var leftTop = 0;
       var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
       var rightTop = 0;
-      var rightBottom = outSections[lines[0]];
+      var rightBottom = document.getElementById('line' + lines[0]).offsetTop;
+      outSections[lines[0]] = rightBottom;
     }
     else if(i >= lines.length - 1) {
       var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
       var leftBottom = scrollDivs[0].scrollHeight;
-      var rightTop = outSections[lines[i]];
+      var rightTop = document.getElementById('line' + lines[i]).offsetTop;
+      outSections[lines[i]] = rightTop;
       var rightBottom = scrollDivs[1].scrollHeight;
     }
     else {
       var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
       var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
-      var rightTop = outSections[lines[i]];
-      var rightBottom = outSections[lines[i + 1]];
+      var rightTop = document.getElementById('line' + lines[i]).offsetTop;
+      outSections[lines[i]] = rightTop;
+      var rightBottom = document.getElementById('line' + lines[i + 1]).offsetTop;
+      outSections[lines[i + 1]] = rightBottom;
     }
     var percent = (y - leftTop) / ((leftBottom - leftTop) || 1);
     var rightY = rightTop + (rightBottom - rightTop) * percent;
     //console.log("dir:" + dir + ",to:" + rightY);
-    scrollDivs[1-dir].scrollTop = rightY;    
+    scrollDivs[1-dir].scrollTop = rightY  + 10;    
   }
   else {
     //out触发    
+    y = y - 10;
     var lines = Object.keys(outSections);
     for (var i = 0; i < lines.length - 1; i++) {
+      if (outSections[lines[i]] == -1)
+        outSections[lines[i]] = document.getElementById('line' + lines[i]).offsetTop;
+      if (outSections[lines[i+1]] == -1)
+        outSections[lines[i+1]] = document.getElementById('line' + lines[i + 1]).offsetTop;
+
       if (y >= outSections[lines[i]] && y < outSections[lines[i+1]])
         break;
     }
@@ -466,11 +483,11 @@ editor.on('change', function(event){
 });
 
 editor.on('scroll', function(event) {
-  onScrollNew(0);
+  onScroll(0);
 });
 
 document.querySelector("#out").addEventListener('scroll', function(event) {
-  onScrollNew(1); 
+  onScroll(1); 
 }, false); 
 
 document.addEventListener('click', function(event) {
@@ -575,5 +592,5 @@ ipc.on('switchLinkify', function (event, enable) {
 });
 
 onUpdate(true);
-window.addEventListener("resize", onRenderChange, false);
+window.addEventListener("resize", onSizeChange, false);
 editor.focus();
