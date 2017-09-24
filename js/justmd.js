@@ -337,6 +337,9 @@ function onSmartPaste() {
   }  
   else if (formats.indexOf("text/plain") != -1) {
     editor.replaceSelection(clipboard.readText());
+  }
+  else {
+    alert("No valid content in clipboard!");
   } 
 }
 
@@ -370,17 +373,24 @@ function onPasteImage() {
 }
 
 function onPasteWord() {
+  if (!curFile) {
+    alert("please save your markdown file before paste from word");
+    return;
+  }
+
   if (clipboard.availableFormats().indexOf("text/html") != -1) {
     var html = clipboard.readHTML().replace(/(class|style)="[\s\S]*?"/g, '');
+    //有些word paste用<v:imagedata 表示图片，转为html image
+    html = html.replace(/<(\/?)v:imagedata/g, '<$1image');
     var md = toMarkdown(html, { gfm: true });
-    md = md.replace(/<\/?(span|div|a|o:p|input|label)[\s\S]*?>/g, ''); 
-    if (md.indexOf('file:///') != -1 && !curFile) {
-      alert("please save your markdown file before paste image from word");
-      return;
-    }
-
+    md = md.replace(/<\/?(span|div|a|o:p|v:.*?|input|label)[\s\S]*?>/g, ''); 
     var datestamp = new Date().toISOString().replace(/[^0-9]/g,'');
     var imgfolder = path.join(path.dirname(curFile), "images");
+    try {
+      fs.mkdirSync(imgfolder);
+    } catch(e) {    
+    }
+
     var imageIdx = 1;
     md = md.replace(/(!\[.*?\])\(file:\/\/\/(.*?)\)/g, function(match, title, url){
       var target = path.join(imgfolder, datestamp + '-' + imageIdx + path.extname(url));
