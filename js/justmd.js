@@ -143,7 +143,7 @@ function refreshSectionIndex() {
 
 function onScroll(dir) {
   //检查是否是一侧滚动触发的另一侧滚动事件
-  if (outSections.length == 0  || scrollDir === dir ) {
+  if (Object.keys(outSections).length == 0  || scrollDir === dir ) {
     scrollDir = -1;
     return;
   }
@@ -170,22 +170,22 @@ function onScroll(dir) {
       var leftTop = 0;
       var leftBottom = editor.charCoords({line:lines[0],ch:0},'local').top;
       var rightTop = 0;
-      var rightBottom = document.getElementById('line' + lines[0]).offsetTop;
+      var rightBottom = getOutSectionTop(lines[0]);
       outSections[lines[0]] = rightBottom;
     }
     else if(i >= lines.length - 1) {
       var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
       var leftBottom = scrollDivs[0].scrollHeight;
-      var rightTop = document.getElementById('line' + lines[i]).offsetTop;
+      var rightTop = getOutSectionTop(lines[i]);
       outSections[lines[i]] = rightTop;
       var rightBottom = scrollDivs[1].scrollHeight;
     }
     else {
       var leftTop = editor.charCoords({line:lines[i],ch:0},'local').top;
       var leftBottom = editor.charCoords({line:lines[i+1],ch:0},'local').top;
-      var rightTop = document.getElementById('line' + lines[i]).offsetTop;
+      var rightTop = getOutSectionTop(lines[i]);
       outSections[lines[i]] = rightTop;
-      var rightBottom = document.getElementById('line' + lines[i + 1]).offsetTop;
+      var rightBottom = getOutSectionTop(lines[i+1]);
       outSections[lines[i + 1]] = rightBottom;
     }
     var percent = (y - leftTop) / ((leftBottom - leftTop) || 1);
@@ -197,14 +197,12 @@ function onScroll(dir) {
     //out触发    
     y = y - 10;
     var lines = Object.keys(outSections);
-    for (var i = 0; i < lines.length - 1; i++) {
-      if (outSections[lines[i]] == -1)
-        outSections[lines[i]] = document.getElementById('line' + lines[i]).offsetTop;
-      if (outSections[lines[i+1]] == -1)
-        outSections[lines[i+1]] = document.getElementById('line' + lines[i + 1]).offsetTop;
 
-      if (y >= outSections[lines[i]] && y < outSections[lines[i+1]])
-        break;
+    if (y >= getOutSectionTop(lines[0]))  {
+      for (var i = 0; i < lines.length - 1; i++) {
+        if (y >= getOutSectionTop(lines[i]) && y < getOutSectionTop(lines[i+1]))
+          break;
+      }
     }
 
     //判断是否最前或最后
@@ -233,6 +231,12 @@ function onScroll(dir) {
     //console.log("dir:" + dir + ",to:" + leftY);
     scrollDivs[1-dir].scrollTop = leftY + 30;
   }
+}
+
+function getOutSectionTop(line) {
+    if (outSections[line] == -1)
+      outSections[line] = document.getElementById('line' + line).offsetTop;
+    return outSections[line];
 }
 
 function onNewFile() {

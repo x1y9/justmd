@@ -242,7 +242,7 @@ const template = [
     submenu: [
       {
         label: 'About',
-        click () { electron.dialog.showMessageBox({message: 'justmd v1.0.2, Copyright 2017 i38.me'});  }
+        click () { electron.dialog.showMessageBox({message: 'justmd v1.1.0, Copyright 2017 i38.me'});  }
       },    
       {
         label: 'Learn More',
