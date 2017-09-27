@@ -12,7 +12,6 @@ npm run package-x64
 
 
 ## todo
-export pdf slow
 split adjust
 sequence https://bramp.github.io/js-sequence-diagrams/
 flow http://flowchart.js.org/

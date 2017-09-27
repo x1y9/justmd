@@ -43,14 +43,19 @@ const template = [
             filters:[{name:"Pdf File", extensions:["pdf"]}]
           }, function (filename) {
             if (filename) {
-              focusedWindow.webContents.printToPDF({}, function (error, data) {
-                if (error) throw error
-                fs.writeFile(filename, data, function (error) {
-                  if (error) {
-                    throw error
-                  }
-                })
-              })
+              focusedWindow.webContents.send('showBusyCursor');
+              //做一个异步调用，以防止阻塞ui导致光标不能变为busy
+              setTimeout(function() {
+                focusedWindow.webContents.printToPDF({}, function (error, data) {
+                  focusedWindow.webContents.send('showNormalCursor')
+                  if (error) throw error;
+                  fs.writeFile(filename, data, function (error) {
+                    if (error) {
+                      throw error
+                    }
+                  })
+                });
+              },100);
             }
           })  
         }

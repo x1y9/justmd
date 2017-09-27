@@ -1,5 +1,8 @@
 body {margin: 0;}
 
+body.busy-cursor {  cursor: progress;}
+body.busy-cursor .CodeMirror-lines { cursor: progress; }
+
 #toolbar {
   position: fixed;
   top: 0;

@@ -605,6 +605,9 @@ ipc.on('switchLinkify', function (event, enable) {
   onUpdate(false);  
 });
 
+ipc.on('showBusyCursor', function(event) {document.body.classList.add('busy-cursor');});
+ipc.on('showNormalCursor', function(event) {document.body.classList.remove('busy-cursor');});
+
 onUpdate(true);
 window.addEventListener("resize", onSizeChange, false);
 editor.focus();
