@@ -12,7 +12,7 @@ npm run package-x64
 
 
 ## todo
-split adjust
 sequence https://bramp.github.io/js-sequence-diagrams/
 flow http://flowchart.js.org/
+splitter
  

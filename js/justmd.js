@@ -608,6 +608,16 @@ ipc.on('switchLinkify', function (event, enable) {
 ipc.on('showBusyCursor', function(event) {document.body.classList.add('busy-cursor');});
 ipc.on('showNormalCursor', function(event) {document.body.classList.remove('busy-cursor');});
 
+//用隐藏的快捷键替代标准键
+document.addEventListener("keydown", function (e) {
+    if (e.key === 'd' && e.altKey) {
+      remote.getCurrentWindow().toggleDevTools();
+    } else if (e.key === 'r' && e.altKey) {
+      location.reload();
+    }
+});
+
 onUpdate(true);
 window.addEventListener("resize", onSizeChange, false);
 editor.focus();
+
