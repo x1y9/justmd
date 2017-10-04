@@ -6,9 +6,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package-x64": "electron-packager . --prune --overwrite --asar=true --platform=win32 --arch=x64 --icon images/justmd.ico",
-    "package-x86": "electron-packager . --prune --overwrite --asar=true --platform=win32 --arch=ia32 --icon images/justmd.ico",
-    "package-osx": "electron-packager . --prune --overwrite --asar=true --platform=darwin --arch=x64 --prune=true --icon images/justmd.ico"  
+    "package-x64": "electron-packager . --prune --overwrite --asar=true --out=dist --platform=win32 --arch=x64 --icon images/justmd.ico",
+    "package-x86": "electron-packager . --prune --overwrite --asar=true --out=dist --platform=win32 --arch=ia32 --icon images/justmd.ico",
+    "package-osx": "electron-packager . --prune --overwrite --asar=true --out=dist --platform=darwin --arch=x64 --prune=true --icon images/justmd.ico",
+    "package-l64": "electron-packager . --prune --overwrite --asar=true --out=dist --platform=linux --arch=x64 --prune=true --icon images/justmd.ico"  
   },
   "devDependencies": {
     "electron": "^1.6.1"
