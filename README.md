@@ -19,7 +19,6 @@ npm run package-osx
 
 ## todo
 linux,osx package
-sequence https://bramp.github.io/js-sequence-diagrams/
-flow http://flowchart.js.org/
 splitter
- 
+sequence https://bramp.github.io/js-sequence-diagrams/
+flow http://flowchart.js.org/ 
