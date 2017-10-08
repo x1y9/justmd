@@ -9,7 +9,7 @@
     "package-x64": "electron-packager . --prune --overwrite --asar --out=dist --platform=win32 --arch=x64 --icon images/justmd.ico",
     "package-x86": "electron-packager . --prune --overwrite --asar --out=dist --platform=win32 --arch=ia32 --icon images/justmd.ico",
     "package-osx": "electron-packager . --prune --overwrite --asar --out=dist --platform=darwin --arch=x64 --icon images/justmd.ico",
-    "package-l64": "electron-packager . --prune --overwrite --asar --out=dist --platform=linux --arch=x64  --icon images/justmd.ico"  
+    "package-l64": "electron-packager . --prune --overwrite --asar --out=dist --platform=linux --arch=x64  --icon images/justmd.png"  
   },
   "devDependencies": {
     "electron": "1.7.8"

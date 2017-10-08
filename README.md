@@ -18,7 +18,7 @@ for osx package(must use osx host):
 npm run package-osx
 
 ## todo
-linux,osx package
+osx paste html
 splitter
 sequence https://bramp.github.io/js-sequence-diagrams/
 flow http://flowchart.js.org/ 
