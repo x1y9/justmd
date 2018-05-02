@@ -30,3 +30,9 @@ npm run package-osx
 * splitter
 * sequence https://bramp.github.io/js-sequence-diagrams/
 * flow http://flowchart.js.org/ 
+
+## License
+
+Copyright (c) 2017-present i38.me
+
+[MIT License](http://en.wikipedia.org/wiki/MIT_License)
