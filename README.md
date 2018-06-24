@@ -23,7 +23,7 @@ Simple markdown editor based on electron.
 
 
 ## install & run
-After [download](releases), unzip and run justmd
+After [download](https://github.com/i38/justmd/releases), unzip and run justmd
 
 # develop
 for devloper, need node.js and electron installed, then:
