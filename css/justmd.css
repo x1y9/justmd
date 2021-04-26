@@ -113,7 +113,7 @@ a:hover, a:active{ outline: 0; }
 
 p{margin:1em 0;}
 
-img{max-width:100%;}
+img{max-width:50%;display:block;margin:auto;}
 
 h1,h2,h3,h4,h5,h6{font-weight:normal;color:#111;line-height:1em;}
 h4,h5,h6{ font-weight: bold; }

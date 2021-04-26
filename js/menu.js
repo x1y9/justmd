@@ -240,11 +240,11 @@ const template = [
     submenu: [
       {
         label: 'About',
-        click () { electron.dialog.showMessageBox({message: 'justmd ' + app.getVersion() + ', Copyright 2017 i38.me'});  }
+        click () { electron.dialog.showMessageBox({message: 'justmd ' + app.getVersion() + ', Copyright 2017~2021 x1y9'});  }
       },    
       {
         label: 'Learn More',
-        click () { electron.shell.openExternal('http://i38.me/justmd/') }
+        click () { electron.shell.openExternal('https://github.com/x1y9/justmd') }
       }
     ]
   }
