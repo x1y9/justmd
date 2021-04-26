@@ -26,18 +26,14 @@ Simple markdown editor based on electron.
 After [download](https://github.com/i38/justmd/releases), unzip and run justmd
 
 # develop
-for devloper, need node.js and electron installed, then:
+For china devlopers, set ELECTRON_MIRROR first:
+* set ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/
 
+then, do install dependency and start dev
 * npm install
 * npm start
 
 ## build
-before build:
-set 
-
-```
-ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/
-```
 
 for windows:
 ```
