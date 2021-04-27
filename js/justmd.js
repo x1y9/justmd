@@ -96,8 +96,8 @@ function validateChange() {
   事件处理
 */
 
-function onUpdate(isInit){
-  curChanged = !isInit;
+function onUpdate(changed){
+  curChanged = changed;
   refreshWindowTitle();
   clearTimeout(updateTimer);
   updateTimer = setTimeout(function() {
@@ -255,20 +255,25 @@ function onOpenFile() {
         filters:[{name:"markdown File", extensions:["md","markdown"]}]
     }, function(filenames) {              
         if (filenames) {
-          fs.readFile(filenames[0], 'utf8', function (error, data) {
-            if (error)
-                reject(error);
-
-            curFile = filenames[0].replace(/\\/g,"/");  
-            editor.setValue(data);
-            curChanged = false;
-            refreshWindowTitle();
-          }); 
+           loadFile(filenames[0]);
         }
     })
   }
 }
 
+function loadFile(filename) {
+  fs.readFile(filename, 'utf8', function (error, data) {
+    if (error) {
+        remote.dialog.showMessageBox({message: "can not open " + filename});
+    }
+    else {
+      curFile = filename.replace(/\\/g,"/");  
+      editor.setValue(data);
+      curChanged = false;
+      refreshWindowTitle();
+    }
+  }); 
+}
 
 function onSaveFile() {
   if (curFile) {
@@ -493,7 +498,7 @@ function onInsertTOC() {
 }
 
 editor.on('change', function(event){
-  onUpdate(false);
+  onUpdate(true);
 });
 
 editor.on('scroll', function(event) {
@@ -649,7 +654,14 @@ document.addEventListener("keydown", function (e) {
     }
 });
 
-onUpdate(true);
+
 window.addEventListener("resize", onSizeChange, false);
 editor.focus();
 
+if (remote.process.argv.length >= 2 ) {
+  //用最后一个做参数，可以保证npm start和release时都可以取到文件名
+  loadFile(remote.process.argv[remote.process.argv.length - 1])
+}
+else {
+  onUpdate(false);
+}
