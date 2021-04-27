@@ -9,9 +9,6 @@ a:focus{ outline: thin dotted; }
 a:hover, a:active{ outline: 0; }
 
 p{margin:1em 0;}
-
-img{max-width:50%;display:block;margin:auto;}
-
 h1,h2,h3,h4,h5,h6{font-weight:normal;color:#111;line-height:1em;}
 h4,h5,h6{ font-weight: bold; }
 h1{ font-size:2.5em; }
@@ -30,7 +27,6 @@ pre, code{
   font-size: 0.94em; /* 0.94 = 0.88 + (1.00 - 0.88) / 2 */
   border-radius:3px;
   background-color: #F8F8F8;
-  
 }
 pre { white-space: pre; white-space: pre-wrap; word-wrap: break-word; padding: 5px;}
 pre code { border: 0px !important; background: transparent !important; line-height: 1.3em; }
@@ -43,7 +39,7 @@ li p:last-child { margin:0 }
 .table-of-contents li {list-style-type: none;}
 
 dd { margin: 0 0 0 2em; }
-img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }
 table { border-collapse: collapse; border-spacing: 0; }
 td, th { vertical-align: top; padding: 4px 10px; border: 1px solid #bbb; }
 tr:nth-child(even) td, tr:nth-child(even) th { background: #eee; }
+img { border: 0; max-width: 50%; display: block; margin: auto; }

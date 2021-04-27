@@ -1,7 +1,7 @@
 {
   "name": "justmd",
   "productName": "justmd",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "just markdown editor",
   "main": "main.js",
   "scripts": {

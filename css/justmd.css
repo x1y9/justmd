@@ -85,10 +85,9 @@ body.busy-cursor .CodeMirror-lines { cursor: progress; }
   padding-left: 20px;
   color: #444;
   line-height: 1.5em;
-
   font-family: "Libre Baskerville", "Lucida Grande", "Hiragino Sans GB", "Hiragino Sans GB W3", "Microsoft YaHei", "wenquanyi micro hei", sans-serif, "Apple Color Emoji";
   font-weight: 300;
-  font-size: 18px;
+  font-size: 14px;
 }
 
 @media print  {
