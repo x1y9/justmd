@@ -608,14 +608,34 @@ ipc.on('switchLinkify', function (event, enable) {
 ipc.on('switchTheme', function (event, theme_id) {
   var i, link_tag ;
   for (i = 0, link_tag = document.getElementsByTagName("link");i < link_tag.length ; i++ ) {
-    if ((link_tag[i].rel.indexOf( "stylesheet" ) != -1) && link_tag[i].title) {
+    if ((link_tag[i].rel.indexOf( "stylesheet" ) != -1) && link_tag[i].id) {
       link_tag[i].disabled = true ;
-      if (link_tag[i].title === theme_id) {
+      if (link_tag[i].id === theme_id) {
         link_tag[i].disabled = false ;
       }
     }
   }
+
+  for (i = 0, link_tag = document.getElementsByTagName("style");i < link_tag.length ; i++ ) {
+    if (link_tag[i].id) {
+      link_tag[i].innerHTML = '' ;
+      if (link_tag[i].id === theme_id) {
+        var linker = link_tag[i];
+        var cssfile = path.join(remote.app.getAppPath(),theme_id + ".css");
+        fs.readFile(cssfile, 'utf8', function (error, data) {
+          if (error) {
+            remote.dialog.showMessageBox({message: "can not open " + cssfile});
+          }
+          else {
+            linker.innerHTML = data;
+          }
+        }); 
+      }
+    }
+  }
 });
+
+
 
 ipc.on('showBusyCursor', function(event) {document.body.classList.add('busy-cursor');});
 ipc.on('showNormalCursor', function(event) {document.body.classList.remove('busy-cursor');});

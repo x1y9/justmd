@@ -245,21 +245,21 @@ const template = [
         }
       },
       {
-        label: 'Dark theme',
-        type: 'radio',
-        checked: false,
-        click (item, focusedWindow) {
-          focusedWindow.webContents.send('switchTheme', "dark");
-        }
-      },
-      {
-        label: 'User theme',
+        label: 'User theme1',
         type: 'radio',
         checked: false,
         click (item, focusedWindow) {
           focusedWindow.webContents.send('switchTheme', "user1");
         }
-      },            
+      },
+      {
+        label: 'User theme2',
+        type: 'radio',
+        checked: false,
+        click (item, focusedWindow) {
+          focusedWindow.webContents.send('switchTheme', "user2");
+        }
+      }          
     ]
   },  
   {
