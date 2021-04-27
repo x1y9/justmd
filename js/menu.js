@@ -232,7 +232,34 @@ const template = [
         click (item, focusedWindow) {
           focusedWindow.webContents.send('switchLinkify', item.checked);
         }
-      }            
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Default theme',
+        type: 'radio',
+        checked: true,
+        click (item, focusedWindow) {
+          focusedWindow.webContents.send('switchTheme', "default");
+        }
+      },
+      {
+        label: 'Dark theme',
+        type: 'radio',
+        checked: false,
+        click (item, focusedWindow) {
+          focusedWindow.webContents.send('switchTheme', "dark");
+        }
+      },
+      {
+        label: 'User theme',
+        type: 'radio',
+        checked: false,
+        click (item, focusedWindow) {
+          focusedWindow.webContents.send('switchTheme', "user1");
+        }
+      },            
     ]
   },  
   {

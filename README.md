@@ -33,6 +33,9 @@ then, do install dependency and start dev
 * npm install
 * npm start
 
+## debug
+* press ALT+D to open devTools 
+
 ## build
 
 for windows:
