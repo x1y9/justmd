@@ -658,8 +658,9 @@ document.addEventListener("keydown", function (e) {
 window.addEventListener("resize", onSizeChange, false);
 editor.focus();
 
-if (remote.process.argv.length >= 2 ) {
-  //用最后一个做参数，可以保证npm start和release时都可以取到文件名
+var args = remote.process.argv.length;
+if (args >= 2 && remote.process.argv[args -1] !== ".") {
+  //用最后一个做参数，可以保证npm start -- arg时也可以取到文件名
   loadFile(remote.process.argv[remote.process.argv.length - 1])
 }
 else {
