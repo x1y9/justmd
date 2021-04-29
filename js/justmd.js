@@ -319,7 +319,22 @@ function onExportHtml() {
     filters:[{name:"Html File", extensions:["html"]}]
   }, function (filename) {
     if (filename) {
-      fs.writeFile(filename, document.getElementById('out').innerHTML, function (error, data) {
+      var styles = [...document.styleSheets]
+          .map((styleSheet,i) => {
+            try {
+              //styleSheets from 5 is for html output
+              if (i >= 5 && !styleSheet.disabled) {
+                return [...styleSheet.cssRules]
+                  .map(rule => rule.cssText)
+                  .join('\n');
+              }
+            } catch (e) {
+            }
+          })
+          .filter(Boolean)
+          .join('\n');
+      var content = '<!DOCTYPE html><html><head><style>' + styles + '</style></head><body>' + document.getElementById('out').innerHTML + '</body></html>';
+      fs.writeFile(filename, content, function (error, data) {
       if (error)
             reject(error);
       }); 
