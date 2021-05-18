@@ -47,6 +47,11 @@ or
 npm run package-x86
 ```
 
+for linux:
+```
+npm run package-l64
+```
+
 for osx package(must under osx):
 ```
 npm run package-osx
@@ -60,6 +65,6 @@ npm run package-osx
 
 # License
 
-Copyright (c) 2017-present i38.me
+Copyright (c) 2017-present x1y9
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)

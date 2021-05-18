@@ -1,7 +1,7 @@
 {
   "name": "justmd",
   "productName": "justmd",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "just markdown editor",
   "main": "main.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "package-l64": "electron-packager . --prune --overwrite --asar --out=dist --platform=linux --arch=x64  --icon images/justmd.png"
   },
   "devDependencies": {
-    "electron": "1.7.8",
+    "electron": "^4.2.12",
     "electron-packager": "^15.2.0"
   }
 }
